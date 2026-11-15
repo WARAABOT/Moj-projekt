@@ -5,7 +5,7 @@ Postavke su u `.claude/settings.json`, pa ih dobije svaki Claude Code koji otvor
 | # | Alat | Izvor | Status |
 |---|------|-------|--------|
 | 1 | Ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | ✅ dodano (plugin) |
-| 2 | OmniRoute | [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute) | 💻 samo na računalu, upute dolje |
+| 2 | Besplatni LLM API-ji | vidi dolje | 💻 na računalu, preko OpenRoutera |
 | 3 | Graphify | [safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI paket `graphifyy` | ✅ dodano (skill + hookovi) |
 | 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ✅ dodano (plugin) |
 
@@ -31,38 +31,6 @@ Ako `graphify` nije instaliran, hookovi se tiho preskoče i ništa se ne kvari.
 ## 4. Agent Skills (Addy Osmani)
 Oko 24 do 25 skillova za planiranje, kodiranje, testiranje, review i objavu.
 Ručno: `/plugin marketplace add addyosmani/agent-skills` pa `/plugin install agent-skills@addy-agent-skills`.
-
-## 2. OmniRoute (radi samo na tvom računalu)
-Službeni repozitorij: [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute), MIT licenca, npm paket `omniroute`.
-To nije plugin nego program (server) koji radi na tvom računalu, pa se ne može upisati u ovaj projekt.
-U oblaku i na mobitelu ga Claude Code ne može koristiti.
-
-### Instalacija (Windows / Mac / Linux, treba Node.js)
-```bash
-npm install -g omniroute
-omniroute
-```
-Ako npm 11+ blokira skripte, koristi naredbu koju ti npm ispiše u upozorenju (`--allow-scripts=...`).
-
-### Postavljanje
-1. Otvori `http://localhost:20128` u pregledniku.
-2. **Providers**: dodaj pružatelje (vlastiti API ključ ili prijava). Besplatni često traže registraciju.
-3. **Endpoints**: kopiraj svoj OmniRoute API ključ.
-
-### Pokretanje Claude Codea kroz OmniRoute
-```bash
-omniroute run claude --model auto
-```
-Ova naredba ne mijenja trajne postavke. Običan `claude` i dalje ide direktno na Anthropic, a `omniroute run claude` ide kroz OmniRoute.
-Ako nešto ne radi, `omniroute run claude --dry-run` pokaže što bi se pokrenulo.
-
-### Na što paziti
-- Tvoj kod i upiti idu pružatelju kojeg OmniRoute izabere. Za tajni kod biraj samo pružatelje kojima vjeruješ.
-- Kad prebaci na besplatni model, to više nije Claude, nego slabiji model, pa je i kvaliteta slabija.
-- Pružatelji označeni `tos: avoid` krše svoja pravila korištenja i mogu ti blokirati račun. Ne uključuj ih ručno.
-- Ne koristi ga za provlačenje svoje Claude Pro/Max pretplate kroz tuđe servise. To može kršiti Anthropicova pravila.
-- Ne uključuj opcije "TLS stealth" i "MITM decrypt" ako ne znaš točno što rade.
-- Instaliraj samo `omniroute` s npm-a ili iz gornjeg repozitorija, ne iz forkova.
 
 ---
 
@@ -95,26 +63,40 @@ Pozivaš ih npr. s "neka istrazivac pronađe gdje se radi login".
   Pazi: postoji drugi program istog imena. Provjeri s `rtk gain`.
 - **Caveman**: Claude odgovara puno kraće (~65 % manje izlaznih tokena). Nije uključen jer su objašnjenja onda jako šturа. Uključi ga samo ako ti ne trebaju.
 
-## Besplatni LLM API-ji (za OmniRoute)
-Poznata lista `cheahjs/free-llm-api-resources` trenutno nije dostupna na GitHubu (vraća 404).
-Postoje samo neslužbene kopije, pa ih ne preporučujem. Ovo su službeni besplatni API-ji velikih tvrtki.
-Ključ dobiješ na njihovoj stranici i upišeš ga u OmniRoute pod **Providers**.
+## Besplatni LLM API-ji
+Poznata lista `cheahjs/free-llm-api-resources` trenutno nije dostupna na GitHubu (vraća 404), pa je ovdje popis službenih besplatnih API-ja.
 
-| Pružatelj | Gdje dobiti ključ | Napomena |
+| Pružatelj | Gdje dobiti ključ | Radi direktno s Claude Codeom? |
 |---|---|---|
-| Google AI Studio (Gemini) | aistudio.google.com | Najizdašniji besplatni sloj. Na besplatnom sloju Google može koristiti podatke za učenje. |
-| Groq | console.groq.com | Vrlo brz, otvoreni modeli (Llama, Qwen…) |
-| OpenRouter | openrouter.ai | Modeli s oznakom `:free`, dnevni limit |
-| GitHub Models | github.com/marketplace/models | Prijava GitHub računom, mali limiti |
-| Mistral (La Plateforme) | console.mistral.ai | Besplatni "Experiment" plan |
-| Cerebras | cloud.cerebras.ai | Vrlo brz, dnevni limit tokena |
+| **OpenRouter** (modeli `:free`) | openrouter.ai | ✅ Da (vidi dolje) |
+| Google AI Studio (Gemini) | aistudio.google.com | ❌ Samo za tvoje programe |
+| Groq | console.groq.com | ❌ Samo za tvoje programe |
+| GitHub Models | github.com/marketplace/models | ❌ Samo za tvoje programe |
+| Mistral | console.mistral.ai | ❌ Samo za tvoje programe |
+| Cerebras | cloud.cerebras.ai | ❌ Samo za tvoje programe |
 
-- Limiti i uvjeti se često mijenjaju. Prije korištenja provjeri ih na stranici pružatelja.
-- API ključeve nikad ne stavljaj u ovaj repozitorij. Upiši ih samo u OmniRoute dashboard na svom računalu.
-- Besplatni modeli su slabiji od Claudea. Dobri su za jednostavne zadatke, ali ne za veće projekte.
+### Claude Code s besplatnim modelima preko OpenRoutera
+1. Registriraj se na openrouter.ai i napravi API ključ.
+2. Izaberi besplatni model na openrouter.ai/models (filter "Free", ime završava na `:free`).
+3. U terminalu na računalu (Mac/Linux):
+```bash
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="tvoj-openrouter-kljuc"
+export ANTHROPIC_API_KEY=""
+export ANTHROPIC_MODEL="ime-modela:free"
+claude
+```
+Na Windowsu (PowerShell) umjesto `export X="..."` piši `$env:X="..."`.
+Postavke vrijede samo u tom prozoru terminala. U novom prozoru `claude` opet radi normalno s Anthropicom.
+
+### Na što paziti
+- To **nije Claude**, nego drugi, slabiji model. OpenRouter sam upozorava da Claude Code s njima ne radi uvijek ispravno. Alati i skillovi znaju zakazati.
+- Besplatni modeli imaju dnevne limite.
+- API ključ nikad ne stavljaj u repozitorij.
+- Neki besplatni pružatelji (npr. Gemini besplatni sloj) mogu koristiti tvoje podatke za učenje.
 
 ## Što NE postoji: "neograničeno"
 - Nijedan alat ne daje neograničen Claude. Limit ovisi o tvom planu (Pro / Max) ili o potrošnji API-ja.
 - Alati iznad samo troše manje tokena po zadatku, pa s istim limitom napraviš više.
-- "Neograničeno besplatno" (OmniRoute, claude-code-router) znači da posao radi neki drugi, slabiji model, a tvoj kod ide drugim tvrtkama.
+- "Neograničeno besplatno" (besplatni API-ji, routeri) znači da posao radi neki drugi, slabiji model, a tvoj kod ide drugim tvrtkama.
 - Ako ti stvarno treba više, uzmi veći plan (Max) ili API s plaćanjem po potrošnji.
