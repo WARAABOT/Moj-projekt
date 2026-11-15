@@ -5,7 +5,7 @@ Postavke su u `.claude/settings.json`, pa ih dobije svaki Claude Code koji otvor
 | # | Alat | Izvor | Status |
 |---|------|-------|--------|
 | 1 | Ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | ✅ dodano (plugin) |
-| 2 | OmniRoute | [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute) | ⚠️ nije dodano, vidi dolje |
+| 2 | OmniRoute | [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute) | 💻 samo na računalu, upute dolje |
 | 3 | Graphify | [safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI paket `graphifyy` | ✅ dodano (skill + hookovi) |
 | 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ✅ dodano (plugin) |
 
@@ -32,14 +32,37 @@ Ako `graphify` nije instaliran, hookovi se tiho preskoče i ništa se ne kvari.
 Oko 24 do 25 skillova za planiranje, kodiranje, testiranje, review i objavu.
 Ručno: `/plugin marketplace add addyosmani/agent-skills` pa `/plugin install agent-skills@addy-agent-skills`.
 
-## 2. OmniRoute (namjerno nije dodan)
-OmniRoute nije plugin. To je zaseban server (gateway) koji pokrećeš na svom računalu (`http://localhost:20128`) i kroz koji Claude Code šalje upite drugim AI tvrtkama.
+## 2. OmniRoute (radi samo na tvom računalu)
+Službeni repozitorij: [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute), MIT licenca, npm paket `omniroute`.
+To nije plugin nego program (server) koji radi na tvom računalu, pa se ne može upisati u ovaj projekt.
+U oblaku i na mobitelu ga Claude Code ne može koristiti.
 
-- Tvoj kod i upiti odlaze tvrtkama s popisa. Mnoge besplatne mogu ih spremati ili koristiti za učenje.
-- Treba mu stalno upaljen server i API ključevi, pa ne radi u oblaku ni na mobitelu.
-- Na GitHubu postoji puno kopija (forkova). Službeni je `diegosouzapw/OmniRoute`.
+### Instalacija (Windows / Mac / Linux, treba Node.js)
+```bash
+npm install -g omniroute
+omniroute
+```
+Ako npm 11+ blokira skripte, koristi naredbu koju ti npm ispiše u upozorenju (`--allow-scripts=...`).
 
-Ako ga ipak želiš, instaliraj ga samo na svom računalu prema službenom README-u, i to samo za kod koji nije tajan.
+### Postavljanje
+1. Otvori `http://localhost:20128` u pregledniku.
+2. **Providers**: dodaj pružatelje (vlastiti API ključ ili prijava). Besplatni često traže registraciju.
+3. **Endpoints**: kopiraj svoj OmniRoute API ključ.
+
+### Pokretanje Claude Codea kroz OmniRoute
+```bash
+omniroute run claude --model auto
+```
+Ova naredba ne mijenja trajne postavke. Običan `claude` i dalje ide direktno na Anthropic, a `omniroute run claude` ide kroz OmniRoute.
+Ako nešto ne radi, `omniroute run claude --dry-run` pokaže što bi se pokrenulo.
+
+### Na što paziti
+- Tvoj kod i upiti idu pružatelju kojeg OmniRoute izabere. Za tajni kod biraj samo pružatelje kojima vjeruješ.
+- Kad prebaci na besplatni model, to više nije Claude, nego slabiji model, pa je i kvaliteta slabija.
+- Pružatelji označeni `tos: avoid` krše svoja pravila korištenja i mogu ti blokirati račun. Ne uključuj ih ručno.
+- Ne koristi ga za provlačenje svoje Claude Pro/Max pretplate kroz tuđe servise. To može kršiti Anthropicova pravila.
+- Ne uključuj opcije "TLS stealth" i "MITM decrypt" ako ne znaš točno što rade.
+- Instaliraj samo `omniroute` s npm-a ili iz gornjeg repozitorija, ne iz forkova.
 
 ---
 
