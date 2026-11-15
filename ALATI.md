@@ -113,3 +113,48 @@ Postavke vrijede samo u tom prozoru terminala. U novom prozoru `claude` opet rad
 - Alati iznad samo troše manje tokena po zadatku, pa s istim limitom napraviš više.
 - "Neograničeno besplatno" (besplatni API-ji, routeri) znači da posao radi neki drugi, slabiji model, a tvoj kod ide drugim tvrtkama.
 - Ako ti stvarno treba više, uzmi veći plan (Max) ili API s plaćanjem po potrošnji.
+
+---
+
+# Treća runda
+
+## Dodano u projekt (radi i na mobitelu i na računalu)
+| Plugin | Izvor | Čemu služi |
+|---|---|---|
+| `claude-code-setup` | službeni (Anthropic) | Pregleda projekt i predloži korisne hookove, skillove i agente. Pitaj ga: "preporuči automatizacije za ovaj projekt". |
+| `task-observer` | [rebelytics/one-skill-to-rule-them-all](https://github.com/rebelytics/one-skill-to-rule-them-all) | Prati tvoj rad i predlaže poboljšanja skillova. Bilješke sprema u `~/.claude/`. |
+
+## Samo za računalo
+Ovi alati trebaju program koji stalno radi na tvom računalu, pa u oblaku i na mobitelu nemaju smisla.
+
+### claude-mem (pamćenje između sesija)
+Repozitorij: [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem). To je jedini službeni izvor. Zaobiđi kopije i stranice s "CMEM" kripto tokenom.
+```bash
+npx claude-mem install --setup browser
+```
+Postavke se biraju u pregledniku. Pamćenje se sprema u `~/.claude-mem/`.
+Pazi: za sažimanje bilješki koristi model, pa **troši dodatne tokene**. "Cloud Sync" ostavi isključen ako ne želiš da podaci idu van.
+
+### Headroom (sažimanje konteksta)
+Repozitorij: [chopratejas/headroom](https://github.com/chopratejas/headroom), PyPI paket `headroom-ai`.
+```bash
+uv tool install --python 3.13 "headroom-ai[all]"
+headroom wrap claude      # poništiš s: headroom unwrap claude
+headroom perf             # koliko si uštedio
+```
+
+### OmniRoute (prebacivanje na druge AI pružatelje)
+Repozitorij: [diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute), npm paket `omniroute`.
+```bash
+npm install -g omniroute
+omniroute                       # dashboard: http://localhost:20128, dodaj pružatelje pod Providers
+omniroute run claude --model auto
+```
+Običan `claude` i dalje ide na Anthropic.
+Pazi:
+- besplatni modeli nisu Claude, nego slabiji modeli,
+- kod ide pružatelju kojeg OmniRoute izabere,
+- ne uključuj pružatelje označene `tos: avoid`,
+- ne provlači Claude pretplatu kroz njega.
+
+**Ne pokreći Headroom i OmniRoute istovremeno.** Oba se postavljaju između Claude Codea i API-ja.
