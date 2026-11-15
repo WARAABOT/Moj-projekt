@@ -40,3 +40,40 @@ OmniRoute nije plugin. To je zaseban server (gateway) koji pokrećeš na svom ra
 - Na GitHubu postoji puno kopija (forkova). Službeni je `diegosouzapw/OmniRoute`.
 
 Ako ga ipak želiš, instaliraj ga samo na svom računalu prema službenom README-u, i to samo za kod koji nije tajan.
+
+---
+
+# Dodatni alati (druga runda)
+
+## Službeni plugini (marketplace `claude-plugins-official`, Anthropic)
+Upisani su u `.claude/settings.json` i automatski se nude pri otvaranju projekta.
+
+| Plugin | Čemu služi |
+|---|---|
+| `superpowers` | Najpopularniji workflow: brainstorming, plan, TDD, rad s pod-agentima |
+| `context7` | Svježa dokumentacija biblioteka, pa manje grešaka i manje pogađanja |
+| `feature-dev` | Vođeni razvoj nove funkcije s agentima za istraživanje i arhitekturu |
+| `security-guidance` | Upozorenja na sigurnosne propuste dok Claude piše kod |
+| `frontend-design` | Ljepši i kvalitetniji web dizajn |
+
+## Tvoji "zaposlenici" (pod-agenti u `.claude/agents/`)
+Pozivaš ih npr. s "neka istrazivac pronađe gdje se radi login".
+
+| Agent | Model | Posao |
+|---|---|---|
+| `istrazivac` | haiku (najjeftiniji) | Pretražuje kod i vraća samo sažetak, pa štedi tokene glavnog agenta |
+| `planer` | sonnet | Pravi plan prije većeg posla |
+| `tester` | sonnet | Piše i pokreće testove |
+| `recenzent` | sonnet | Pregledava promjene prije commita |
+
+## Samo za računalo (treba program instaliran lokalno)
+- **RTK** ([rtk-ai/rtk](https://github.com/rtk-ai/rtk)): skraćuje izlaz terminalskih naredbi prije nego ga Claude pročita (proizvođač navodi 60–90 %).
+  Instalacija: `brew install rtk` ili `cargo install --git https://github.com/rtk-ai/rtk`, pa `rtk init --global`.
+  Pazi: postoji drugi program istog imena. Provjeri s `rtk gain`.
+- **Caveman**: Claude odgovara puno kraće (~65 % manje izlaznih tokena). Nije uključen jer su objašnjenja onda jako šturа. Uključi ga samo ako ti ne trebaju.
+
+## Što NE postoji: "neograničeno"
+- Nijedan alat ne daje neograničen Claude. Limit ovisi o tvom planu (Pro / Max) ili o potrošnji API-ja.
+- Alati iznad samo troše manje tokena po zadatku, pa s istim limitom napraviš više.
+- "Neograničeno besplatno" (OmniRoute, claude-code-router) znači da posao radi neki drugi, slabiji model, a tvoj kod ide drugim tvrtkama.
+- Ako ti stvarno treba više, uzmi veći plan (Max) ili API s plaćanjem po potrošnji.
