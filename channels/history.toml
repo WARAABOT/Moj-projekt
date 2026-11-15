@@ -1,0 +1,10 @@
+name = "Forgotten Files"
+voice = "en-US-AndrewMultilingualNeural"
+long_days = [1]          # 0=Mon ... 6=Sun: days a long video is made
+research = false
+category = "27"       # YouTube category id
+brief = """
+History mysteries and strange true stories: lost civilizations, unsolved disappearances,
+odd historical events, forgotten inventions. Tone: calm, cinematic storyteller, builds suspense.
+Clearly separate documented facts from theories and legends.
+"""

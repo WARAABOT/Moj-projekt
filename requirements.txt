@@ -1,0 +1,6 @@
+anthropic>=2.8
+edge-tts>=7.3
+requests
+pillow
+google-api-python-client
+google-auth
