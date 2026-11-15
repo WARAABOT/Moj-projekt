@@ -17,14 +17,36 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 FOOTER = "\n\nNarration: AI voice. Stock footage: Pexels."
 
 
+def next_queued(cid: str, fmt: str, history: list) -> tuple[dict | None, str | None]:
+    """Oldest script not used yet, from the content branch checkout (QUEUE_DIR) or ./queue."""
+    used = {h.get("script") for h in history}
+    dirs = [pathlib.Path(d) for d in (os.environ.get("QUEUE_DIR"), ROOT / "queue") if d]
+    files = sorted({p.name: p for d in dirs for p in (d / cid / fmt).glob("*.json")}.items())
+    for name, path in files:
+        if name in used:
+            continue
+        meta = json.loads(path.read_text())
+        missing = {"topic", "title", "description", "tags", "thumbnail_text", "scenes"} - meta.keys()
+        if missing or not meta["scenes"]:
+            print(f"[{cid}/{fmt}] skipping broken {name}: missing {missing or 'scenes'}")
+            continue
+        return meta, name
+    return None, None
+
+
 def make_video(cid: str, channel: dict, fmt: str, today: dt.date, do_upload: bool) -> dict:
     hist_file = ROOT / "history" / f"{cid}.json"
     history = json.loads(hist_file.read_text()) if hist_file.exists() else []
     work = ROOT / "output" / cid / f"{today}-{fmt}"
     work.mkdir(parents=True, exist_ok=True)
 
-    print(f"[{cid}/{fmt}] writing script")
-    meta = write.write_script(channel, fmt, [h["topic"] for h in history], today.isoformat())
+    meta, script_file = next_queued(cid, fmt, history)
+    if meta is None:
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            print(f"[{cid}/{fmt}] no script in queue/{cid}/{fmt}/, skipping")
+            return None
+        print(f"[{cid}/{fmt}] writing script with the API")
+        meta = write.write_script(channel, fmt, [h["topic"] for h in history], today.isoformat())
     (work / "script.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False))
     print(f"[{cid}/{fmt}] {meta['title']} ({len(meta['scenes'])} scenes)")
 
@@ -63,7 +85,7 @@ def make_video(cid: str, channel: dict, fmt: str, today: dt.date, do_upload: boo
         if p.name not in {"final.mp4", "thumbnail.jpg", "script.json"}:
             p.unlink()
     history.append({"date": today.isoformat(), "format": fmt, "topic": meta["topic"],
-                    "title": meta["title"], "video_id": video_id})
+                    "title": meta["title"], "video_id": video_id, "script": script_file})
     hist_file.parent.mkdir(exist_ok=True)
     hist_file.write_text(json.dumps(history, indent=2, ensure_ascii=False) + "\n")
     return meta

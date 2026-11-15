@@ -5,18 +5,14 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
-
-
-def _youtube(refresh_token: str):
+def youtube(refresh_token: str):
     creds = Credentials(None, refresh_token=refresh_token, token_uri="https://oauth2.googleapis.com/token",
-                        client_id=os.environ["YT_CLIENT_ID"], client_secret=os.environ["YT_CLIENT_SECRET"],
-                        scopes=SCOPES)
+                        client_id=os.environ["YT_CLIENT_ID"], client_secret=os.environ["YT_CLIENT_SECRET"])
     return build("youtube", "v3", credentials=creds, cache_discovery=False)
 
 
 def upload(refresh_token: str, video: str, meta: dict, privacy: str, thumb: str | None = None) -> str:
-    yt = _youtube(refresh_token)
+    yt = youtube(refresh_token)
     body = {
         "snippet": {"title": meta["title"][:100], "description": meta["description"][:4900],
                     "tags": meta["tags"][:30], "categoryId": meta.get("category", "27")},

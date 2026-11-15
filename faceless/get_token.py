@@ -10,8 +10,11 @@ import sys
 
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
+          "https://www.googleapis.com/auth/youtube.readonly"]
+
 flow = InstalledAppFlow.from_client_secrets_file(
     sys.argv[1] if len(sys.argv) > 1 else "client_secret.json",
-    ["https://www.googleapis.com/auth/youtube.upload"])
+    SCOPES)
 creds = flow.run_local_server(port=0, prompt="consent", access_type="offline")
 print("\nRefresh token (keep it secret):\n" + creds.refresh_token)

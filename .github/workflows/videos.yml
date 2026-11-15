@@ -33,10 +33,16 @@ jobs:
           cache: pip
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg fonts-dejavu-core
       - run: pip install -r requirements.txt
+      - name: Get scripts from the content branch (written daily by Claude Code)
+        run: |
+          if git fetch --depth 1 origin content; then
+            git worktree add --detach "$RUNNER_TEMP/content" FETCH_HEAD
+            echo "QUEUE_DIR=$RUNNER_TEMP/content/queue" >> "$GITHUB_ENV"
+          fi
 
       - name: Make videos
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # optional, only if the queue is empty
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
           YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
@@ -52,6 +58,19 @@ jobs:
           --format "${{ inputs.format || 'auto' }}"
           ${{ github.event_name == 'workflow_dispatch' && !inputs.upload && '--no-upload' || '' }}
 
+      - name: Read views and subscribers
+        if: always()
+        continue-on-error: true
+        env:
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_TOKEN_HISTORY: ${{ secrets.YT_TOKEN_HISTORY }}
+          YT_TOKEN_MONEY: ${{ secrets.YT_TOKEN_MONEY }}
+          YT_TOKEN_SCIENCE: ${{ secrets.YT_TOKEN_SCIENCE }}
+          YT_TOKEN_STORIES: ${{ secrets.YT_TOKEN_STORIES }}
+          YT_TOKEN_GTA6: ${{ secrets.YT_TOKEN_GTA6 }}
+        run: python -m faceless.stats
+
       - name: Keep the videos for 7 days (download from the run page)
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,10 +80,10 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: Save used topics
+      - name: Save used topics and stats
         if: always()
         run: |
           git config user.name "video-bot"
           git config user.email "video-bot@users.noreply.github.com"
-          git add history/
-          git diff --cached --quiet || (git commit -m "Video history $(date -u +%F)" && git push)
+          mkdir -p history stats && git add history/ stats/
+          git diff --cached --quiet || (git commit -m "Video history and stats $(date -u +%F)" && git push)
