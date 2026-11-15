@@ -1,0 +1,11 @@
+name = "Money Explained Simply"
+voice = "en-US-BrianMultilingualNeural"
+long_days = [2]
+research = false
+category = "27"       # YouTube category id
+brief = """
+Personal finance and how money works: compound interest, inflation, how banks, credit scores,
+index funds and taxes work, famous money mistakes. Tone: friendly teacher, concrete numbers and examples.
+Educational only: never promise returns, never recommend specific stocks or crypto, add
+"not financial advice" to the description.
+"""

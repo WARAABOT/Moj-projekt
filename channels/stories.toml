@@ -1,0 +1,11 @@
+name = "Untold Lives"
+voice = "en-US-ChristopherNeural"
+long_days = [4]
+research = false
+category = "22"       # YouTube category id
+brief = """
+Short biographies and comeback stories of real people (inventors, athletes, founders, explorers)
+who failed before they succeeded. Tone: warm, motivating, but specific: real dates, places and
+turning points instead of generic quotes. No fabricated quotes; if a quote is famous but
+unverified, say so or leave it out.
+"""

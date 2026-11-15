@@ -1,0 +1,11 @@
+name = "Vice City Daily"
+voice = "en-US-GuyNeural"
+long_days = [5]
+research = true          # searches the web for the latest news before writing
+category = "20"       # YouTube category id
+brief = """
+Grand Theft Auto VI news, launch coverage, map/feature breakdowns, tips and fan theories.
+Tone: energetic gamer, fast pace. Base every claim on the research notes and say which are
+official (Rockstar) vs leaks/rumors. Never invent release details, prices or features.
+This is an unofficial fan channel: say so in the description.
+"""
