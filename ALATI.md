@@ -7,6 +7,7 @@ Postavke su u `.claude/settings.json`, pa ih dobije svaki Claude Code koji otvor
 | 1 | Ponytail | [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) | ✅ dodano (plugin) |
 | 2 | Besplatni LLM API-ji | vidi dolje | 💻 na računalu, preko OpenRoutera |
 | 3 | Graphify | [safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI paket `graphifyy` | ✅ dodano (skill + hookovi) |
+| 5 | ccusage | [ccusage/ccusage](https://github.com/ccusage/ccusage) | ✅ dodano (statusna traka) |
 | 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ✅ dodano (plugin) |
 
 ## 1. Ponytail
@@ -62,6 +63,18 @@ Pozivaš ih npr. s "neka istrazivac pronađe gdje se radi login".
   Instalacija: `brew install rtk` ili `cargo install --git https://github.com/rtk-ai/rtk`, pa `rtk init --global`.
   Pazi: postoji drugi program istog imena. Provjeri s `rtk gain`.
 - **Caveman**: Claude odgovara puno kraće (~65 % manje izlaznih tokena). Nije uključen jer su objašnjenja onda jako šturа. Uključi ga samo ako ti ne trebaju.
+
+## ccusage (praćenje potrošnje tokena)
+Službeni repozitorij: [ccusage/ccusage](https://github.com/ccusage/ccusage), MIT, npm paket `ccusage`.
+Čita lokalne zapise Claude Codea i pokazuje koliko si tokena i novca potrošio. Ništa ne šalje van (statusna traka radi offline).
+
+- **Statusna traka**: upisana je u `.claude/settings.json`, pa na dnu Claude Codea vidiš potrošnju uživo. Treba Node.js (`npx`).
+- Ručno u terminalu:
+```bash
+npx ccusage@latest daily     # po danima
+npx ccusage@latest monthly   # po mjesecima
+npx ccusage@latest blocks    # 5-satni prozori limita, korisno da vidiš koliko ti je ostalo
+```
 
 ## Besplatni LLM API-ji
 Poznata lista `cheahjs/free-llm-api-resources` trenutno nije dostupna na GitHubu (vraća 404), pa je ovdje popis službenih besplatnih API-ja.
