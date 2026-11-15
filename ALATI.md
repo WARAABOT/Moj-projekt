@@ -8,7 +8,7 @@ Postavke su u `.claude/settings.json`, pa ih dobije svaki Claude Code koji otvor
 | 2 | Besplatni LLM API-ji | vidi dolje | 💻 na računalu, preko OpenRoutera |
 | 3 | Graphify | [safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI paket `graphifyy` | ✅ dodano (skill + hookovi) |
 | 5 | ccusage | [ccusage/ccusage](https://github.com/ccusage/ccusage) | ✅ dodano (statusna traka) |
-| 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ✅ dodano (plugin) |
+| 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ➖ maknuto (radi isto što Superpowers) |
 
 ## 1. Ponytail
 Tjera agenta da piše što manje koda (YAGNI, standardna biblioteka prije svega).
@@ -29,9 +29,9 @@ Paket se zove `graphifyy` (s dva y). Pazi da ne instaliraš nešto sličnog imen
 Graf napraviš u Claude Codeu naredbom `/graphify .`.
 Ako `graphify` nije instaliran, hookovi se tiho preskoče i ništa se ne kvari.
 
-## 4. Agent Skills (Addy Osmani)
-Oko 24 do 25 skillova za planiranje, kodiranje, testiranje, review i objavu.
-Ručno: `/plugin marketplace add addyosmani/agent-skills` pa `/plugin install agent-skills@addy-agent-skills`.
+## 4. Agent Skills (maknuto)
+Maknut je jer radi isto što i Superpowers (planiranje, TDD, review). Dva ista alata samo troše tokene u svakoj poruci.
+Ako ga ipak želiš: `/plugin marketplace add addyosmani/agent-skills` pa `/plugin install agent-skills@addy-agent-skills`.
 
 ---
 
@@ -44,7 +44,6 @@ Upisani su u `.claude/settings.json` i automatski se nude pri otvaranju projekta
 |---|---|
 | `superpowers` | Najpopularniji workflow: brainstorming, plan, TDD, rad s pod-agentima |
 | `context7` | Svježa dokumentacija biblioteka, pa manje grešaka i manje pogađanja |
-| `feature-dev` | Vođeni razvoj nove funkcije s agentima za istraživanje i arhitekturu |
 | `security-guidance` | Upozorenja na sigurnosne propuste dok Claude piše kod |
 | `frontend-design` | Ljepši i kvalitetniji web dizajn |
 
@@ -158,3 +157,17 @@ Pazi:
 - ne provlači Claude pretplatu kroz njega.
 
 **Ne pokreći Headroom i OmniRoute istovremeno.** Oba se postavljaju između Claude Codea i API-ja.
+
+---
+
+# Četvrta runda: čišćenje i jači alati
+
+| Promjena | Plugin | Zašto |
+|---|---|---|
+| ➕ | `code-review` | Više agenata pregleda pull request prije spajanja. Pokreni s `/code-review`. |
+| ➕ | `commit-commands` | Brze naredbe za commit, push i pull request |
+| ➕ | `playwright` | Claude otvara pravi preglednik i testira tvoju stranicu/aplikaciju (radi i u oblaku) |
+| ➖ | `agent-skills` | Isto što i Superpowers |
+| ➖ | `feature-dev` | Isto što i Superpowers + tvoji pod-agenti (planer, istrazivac) |
+
+Superpowers je ostao kao glavni način rada, a tvoji pod-agenti su ostali kao "zaposlenici".
