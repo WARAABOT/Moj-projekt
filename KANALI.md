@@ -1,5 +1,9 @@
 # Faceless YouTube kanali (automatski)
 
+> **Trenutno radi samo 1 kanal: Curious Universe** (`channels/science.toml`): 2 Shorta dnevno i dugi video srijedom i subotom.
+> Ostali kanali čekaju u `channels/later/`. Kanal uključiš tako da njegovu datoteku vratiš u `channels/`.
+> Za početak u koraku 3 napravi token samo za ovaj kanal, a u GitHub upiši samo `YT_TOKEN_SCIENCE`.
+
 Sve je besplatno. Nema plaćenog API-ja.
 
 **Svako jutro (10:17 UTC)** zakazana Claude Code sesija (tvoja pretplata) prati `PLANER.md`: pogleda statistiku (`stats/`), napiše scenarije za sljedeće dane i spremi ih na granu `content`. Za GTA 6 prvo pretraži najnovije vijesti. Nedjeljom napravi tjedni pregled i strategiju (`strategy/` na grani `content`).

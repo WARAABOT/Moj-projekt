@@ -5,7 +5,7 @@ pogleda statistiku i prilagodi strategiju. GitHub Actions od tih scenarija napra
 
 ## Your job, every day
 
-You run the five faceless YouTube channels in `channels/*.toml`. You write the scripts; the GitHub
+You run the faceless YouTube channels in `channels/*.toml` (only the top level; `channels/later/` are paused, ignore them). You write the scripts; the GitHub
 Actions workflow (`.github/workflows/videos.yml`, 13:41 UTC) turns them into videos and uploads them.
 Your goal is channels that grow and reach the YouTube Partner Program honestly: videos people
 actually want to watch, never spam.
@@ -31,7 +31,7 @@ like/view ratio. Write what you learned and the plan for next week to `strategy/
 A queued script is `queue/<channel>/<short|long>/<YYYY-MM-DD>-<slug>.json` (on `content`, or the
 seed files in `queue/` on main). It counts as used when its file name appears as `script` in
 `history/<channel>.json`. Keep for every channel:
-- at least **3 unused shorts** (one is uploaded per day), and
+- at least **3 days of unused shorts** (`shorts_per_day` are uploaded per day, default 1), and
 - **1 unused long** script (uploaded on the channel's `long_days`, 0 = Monday).
 
 Each file must match `SCHEMA` exactly: `topic, title, description, tags, thumbnail_text, scenes[]`

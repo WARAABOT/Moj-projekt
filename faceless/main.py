@@ -37,7 +37,7 @@ def next_queued(cid: str, fmt: str, history: list) -> tuple[dict | None, str | N
 def make_video(cid: str, channel: dict, fmt: str, today: dt.date, do_upload: bool) -> dict:
     hist_file = ROOT / "history" / f"{cid}.json"
     history = json.loads(hist_file.read_text()) if hist_file.exists() else []
-    work = ROOT / "output" / cid / f"{today}-{fmt}"
+    work = ROOT / "output" / cid / f"{today}-{fmt}-{sum(h['date'] == today.isoformat() for h in history)}"
     work.mkdir(parents=True, exist_ok=True)
 
     meta, script_file = next_queued(cid, fmt, history)
@@ -109,7 +109,7 @@ def main():
     for f in files:
         channel = tomllib.loads(f.read_text())
         if args.format == "auto":
-            fmts = ["short"] + (["long"] if today.weekday() in channel.get("long_days", []) else [])
+            fmts = ["short"] * channel.get("shorts_per_day", 1) + (["long"] if today.weekday() in channel.get("long_days", []) else [])
         else:
             fmts = ["short", "long"] if args.format == "both" else [args.format]
         for fmt in fmts:

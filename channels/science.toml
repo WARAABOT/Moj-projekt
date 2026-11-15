@@ -1,6 +1,7 @@
 name = "Curious Universe"
 voice = "en-US-EmmaMultilingualNeural"
-long_days = [3]
+long_days = [2, 5]      # Wednesday and Saturday
+shorts_per_day = 2
 research = false
 category = "28"       # YouTube category id
 brief = """
