@@ -95,6 +95,24 @@ Pozivaš ih npr. s "neka istrazivac pronađe gdje se radi login".
   Pazi: postoji drugi program istog imena. Provjeri s `rtk gain`.
 - **Caveman**: Claude odgovara puno kraće (~65 % manje izlaznih tokena). Nije uključen jer su objašnjenja onda jako šturа. Uključi ga samo ako ti ne trebaju.
 
+## Besplatni LLM API-ji (za OmniRoute)
+Poznata lista `cheahjs/free-llm-api-resources` trenutno nije dostupna na GitHubu (vraća 404).
+Postoje samo neslužbene kopije, pa ih ne preporučujem. Ovo su službeni besplatni API-ji velikih tvrtki.
+Ključ dobiješ na njihovoj stranici i upišeš ga u OmniRoute pod **Providers**.
+
+| Pružatelj | Gdje dobiti ključ | Napomena |
+|---|---|---|
+| Google AI Studio (Gemini) | aistudio.google.com | Najizdašniji besplatni sloj. Na besplatnom sloju Google može koristiti podatke za učenje. |
+| Groq | console.groq.com | Vrlo brz, otvoreni modeli (Llama, Qwen…) |
+| OpenRouter | openrouter.ai | Modeli s oznakom `:free`, dnevni limit |
+| GitHub Models | github.com/marketplace/models | Prijava GitHub računom, mali limiti |
+| Mistral (La Plateforme) | console.mistral.ai | Besplatni "Experiment" plan |
+| Cerebras | cloud.cerebras.ai | Vrlo brz, dnevni limit tokena |
+
+- Limiti i uvjeti se često mijenjaju. Prije korištenja provjeri ih na stranici pružatelja.
+- API ključeve nikad ne stavljaj u ovaj repozitorij. Upiši ih samo u OmniRoute dashboard na svom računalu.
+- Besplatni modeli su slabiji od Claudea. Dobri su za jednostavne zadatke, ali ne za veće projekte.
+
 ## Što NE postoji: "neograničeno"
 - Nijedan alat ne daje neograničen Claude. Limit ovisi o tvom planu (Pro / Max) ili o potrošnji API-ja.
 - Alati iznad samo troše manje tokena po zadatku, pa s istim limitom napraviš više.
