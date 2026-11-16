@@ -106,13 +106,13 @@ def state():
             a["video"], a["thumb"] = _media_url(v.get("video_path")), _media_url(v.get("thumb_path"))
         approvals.append(a)
 
-    week = db.rows("""SELECT id, title, status, scheduled_at FROM videos
+    week = db.rows("""SELECT id, title, status, format, scheduled_at FROM videos
                       WHERE scheduled_at BETWEEN ? AND ? ORDER BY scheduled_at""", today - 86400, today + 8 * 86400)
 
     latest = db.row("SELECT * FROM videos WHERE status='published' ORDER BY updated_at DESC LIMIT 1")
     if latest:
         lp = [p for p in posts if p["video_id"] == latest["id"]]
-        latest = {"id": latest["id"], "title": latest["title"], "video": _media_url(latest["video_path"]),
+        latest = {"id": latest["id"], "title": latest["title"], "format": latest["format"], "video": _media_url(latest["video_path"]),
                   "thumb": _media_url(latest["thumb_path"]), "published_at": latest["updated_at"],
                   "views": sum(p["views"] for p in lp), "likes": sum(p["likes"] for p in lp),
                   "comments": sum(p["comments"] for p in lp),
@@ -127,7 +127,7 @@ def state():
         "kpi": kpi, "pipeline": pipeline, "approvals": approvals, "week": week, "latest": latest,
         "series": series,
         "agents": db.rows("SELECT * FROM agents"),
-        "videos": db.rows("""SELECT id, topic, title, status, error, scheduled_at, thumb_path, updated_at
+        "videos": db.rows("""SELECT id, topic, title, status, format, error, scheduled_at, thumb_path, updated_at
                              FROM videos ORDER BY id DESC LIMIT 25"""),
         "comments": db.rows("""SELECT c.*, p.platform FROM comments c JOIN posts p ON p.id=c.post_id
                                ORDER BY c.ts DESC LIMIT 15"""),

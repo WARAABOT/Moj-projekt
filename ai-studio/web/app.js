@@ -197,7 +197,7 @@ function renderWeek(s) {
     const label = i === 0 ? "Danas" : d.toLocaleDateString("hr-HR", { weekday: "short", day: "numeric" });
     return `<div class="day ${i === 0 ? "today" : ""}"><h3>${label}</h3>${items.map((v) => {
       const c = (STATUS[v.status] || [, "#fff"])[1];
-      return `<div class="slot" style="--c:${c}"><b>${time(v.scheduled_at)}</b><span title="${esc(v.title)}">${esc(v.title)}</span></div>`;
+      return `<div class="slot" style="--c:${c}"><b>${time(v.scheduled_at)}${v.format === "long" ? " · DUGI" : ""}</b><span title="${esc(v.title)}">${esc(v.title)}</span></div>`;
     }).join("")}</div>`;
   }).join("");
 }
@@ -209,7 +209,7 @@ function renderLatest(s) {
   if (v.id !== latestId) {
     latestId = v.id;
     $("latest").innerHTML = `<div class="latest">
-      <video src="${v.video}" poster="${v.thumb}" muted loop playsinline autoplay controls></video>
+      <video class="${v.format === "long" ? "wide" : ""}" src="${v.video}" poster="${v.thumb}" muted loop playsinline autoplay controls></video>
       <div><div class="t">${esc(v.title)}</div><div class="nums" id="latest-nums"></div>
       <div class="links">${v.links.map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc((PLATFORM[l.platform] || {}).short || l.platform)} ↗</a>`).join("")}</div>
       <div class="mono" style="margin-top:8px">objavljeno ${time(v.published_at)}</div></div></div>`;
@@ -222,7 +222,8 @@ function renderVideos(s) {
     const [label, c] = STATUS[v.status] || [v.status, "#fff"];
     const retry = v.status === "failed" ? ` <button class="btn no small" data-retry="${v.id}">Ponovi</button>` : "";
     const err = v.error && v.status === "failed" ? `<div class="err" title="${esc(v.error)}">${esc(v.error)}</div>` : "";
-    return `<div class="vrow"><div style="min-width:0"><div class="vt">${esc(v.title || v.topic)}</div>${err}</div>
+    const fmtTag = v.format === "long" ? `<span class="fmt long">DUGI</span>` : `<span class="fmt">KRATKI</span>`;
+    return `<div class="vrow"><div style="min-width:0"><div class="vt">${fmtTag}${esc(v.title || v.topic)}</div>${err}</div>
       <div><span class="status" style="--c:${c}">${label}</span>${retry}</div></div>`;
   }).join("") : `<div class="empty">Scout upravo traži prve teme…</div>`;
 }

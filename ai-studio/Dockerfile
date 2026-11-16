@@ -1,6 +1,9 @@
 FROM python:3.13-slim
+# ffmpeg za montažu, fontovi za titlove, Node.js za Claude Code (tvoja Claude pretplata)
 RUN apt-get update \
- && apt-get install -y --no-install-recommends ffmpeg fonts-inter fonts-dejavu-core \
+ && apt-get install -y --no-install-recommends ffmpeg fonts-inter fonts-dejavu-core libsndfile1 nodejs npm \
+ && npm install -g @anthropic-ai/claude-code \
+ && npm cache clean --force \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY requirements.txt .

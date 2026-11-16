@@ -192,6 +192,9 @@ canvas { width: 100%; display: block; }
 .videos { display: flex; flex-direction: column; gap: 6px; max-height: 320px; overflow: auto; }
 .vrow { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 13px; padding: 7px 9px; border-radius: 8px; background: #0b061866; }
 .vrow .vt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fmt { font-family: var(--mono); font-size: 9px; font-weight: 800; padding: 2px 6px; margin-right: 8px; border-radius: 4px; border: 1px solid var(--line); color: var(--muted); vertical-align: 1px; }
+.fmt.long { color: var(--yellow); border-color: #ffd40077; }
+.latest video.wide { aspect-ratio: 16/9; }
 .vrow .err { font-family: var(--mono); font-size: 10px; color: var(--red); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .status { font-family: var(--mono); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 99px; color: #0b0618; background: var(--c); white-space: nowrap; }
 .log { font-family: var(--mono); font-size: 11px; max-height: 320px; overflow: auto; line-height: 1.7; }

@@ -11,12 +11,18 @@ from zoneinfo import ZoneInfo
 from pydantic import BaseModel
 
 from .. import db, llm
-from ..config import (AUTO_APPROVE_PUBLISH, AUTO_APPROVE_TOPICS, DEMO_MODE, LANGUAGE, MEDIA_DIR, NICHE,
-                      POST_TIMES, TIMEZONE, VIDEOS_PER_DAY)
+from ..config import (AUTO_APPROVE_PUBLISH, AUTO_APPROVE_TOPICS, DEMO_MODE, LANGUAGE, LONG_DAYS, LONG_ENABLED,
+                      LONG_TIME, MEDIA_DIR, NICHE, POST_TIMES, TIMEZONE, VIDEOS_PER_DAY)
 from ..services import media, platforms, render, thumbnail, tts
 from . import idle, log, work
 
 IN_FLIGHT = ("idea", "approved", "writing", "scripted", "producing", "review", "scheduled")
+WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+
+
+def _in_flight(fmt: str) -> int:
+    return db.row(f"SELECT COUNT(*) n FROM videos WHERE format=? AND status IN ({','.join('?' * len(IN_FLIGHT))})",
+                  fmt, *IN_FLIGHT)["n"]
 
 
 # ---------- Scout: smišlja teme ----------
@@ -41,41 +47,57 @@ DEMO_IDEAS = [
     ("The hidden iPhone feature nobody uses", "Step-by-step", "Hidden features get shared"),
     ("AI made this song in 30 seconds", "Reveal at the end", "Surprise endings boost rewatches"),
 ]
+DEMO_LONG_IDEAS = [
+    ("15 AI tools that will save you 10 hours a week", "Ranked list with real use cases", "Long lists keep watch time high"),
+    ("How AI actually works, explained simply", "From zero to understanding in 10 minutes", "Explainers rank in search"),
+    ("I tested every free AI video tool", "Honest comparison with a winner", "Comparisons get strong search traffic"),
+]
 
 
 def scout():
-    active = db.row(f"SELECT COUNT(*) n FROM videos WHERE status IN ({','.join('?' * len(IN_FLIGHT))})", *IN_FLIGHT)["n"]
+    """Puni red tema: kratki (svaki dan) i dugi YouTube videi (nekoliko tjedno)."""
     pending = db.row("SELECT COUNT(*) n FROM approvals WHERE kind='topic' AND status='pending'")["n"]
-    if active >= VIDEOS_PER_DAY * 2 or pending >= 4:
+    if pending >= 5:
         return
-    work("Scout", "Traži trending teme", 0.3)
+    if _in_flight("short") < VIDEOS_PER_DAY * 2:
+        _scout("short")
+    if LONG_ENABLED and "youtube" in platforms.enabled() and _in_flight("long") < max(2, len(LONG_DAYS)):
+        _scout("long")
+
+
+def _scout(fmt: str):
+    long = fmt == "long"
+    work("Scout", "Traži teme za dugi YouTube video" if long else "Traži trending teme", 0.3)
+    used = [r["topic"] for r in db.rows("SELECT topic FROM videos ORDER BY id DESC LIMIT 40")]
     if DEMO_MODE:
         time.sleep(2)
-        used = {r["topic"] for r in db.rows("SELECT topic FROM videos")}
-        fresh = [i for i in DEMO_IDEAS if i[0] not in used] or DEMO_IDEAS
-        picks = random.sample(fresh, min(3, len(fresh)))
-        ideas = [Idea(topic=t, angle=a, why=w) for t, a, w in picks]
+        pool = DEMO_LONG_IDEAS if long else DEMO_IDEAS
+        fresh = [i for i in pool if i[0] not in used] or pool
+        ideas = [Idea(topic=t, angle=a, why=w) for t, a, w in random.sample(fresh, min(2 if long else 3, len(fresh)))]
     else:
-        best = db.rows("""SELECT v.title, SUM(p.views) views FROM videos v JOIN posts p ON p.video_id=v.id
-                          GROUP BY v.id ORDER BY views DESC LIMIT 5""")
-        recent = [r["topic"] for r in db.rows("SELECT topic FROM videos ORDER BY id DESC LIMIT 30")]
+        best = db.rows("""SELECT v.title, v.format, SUM(p.views) views FROM videos v JOIN posts p ON p.video_id=v.id
+                          GROUP BY v.id ORDER BY views DESC LIMIT 8""")
+        kind = ("2 ideas for 8-12 minute horizontal YouTube videos (educational, lists, comparisons, explainers) "
+                "that work with voiceover and stock footage and that people search for on YouTube"
+                if long else
+                "3 ideas for 30-45 second vertical videos (TikTok, Shorts, Reels) with a strong hook")
         ideas = llm.ask(
-            "You are a short-form video strategist for TikTok, YouTube Shorts and Instagram Reels.",
+            "You are a video strategist for a faceless channel (voiceover + stock footage + captions).",
             f"Channel niche: {NICHE}. Video language: {LANGUAGE}.\n"
-            f"Our best videos so far (title, views): {json.dumps(best)}\n"
-            f"Topics already used, do not repeat: {json.dumps(recent)}\n"
-            "Suggest 3 new video ideas for 30-45 second vertical videos that can be made with voiceover, "
-            "stock footage and captions (no on-camera person). Each needs a strong hook.",
+            f"Our best videos so far: {json.dumps(best)}\n"
+            f"Topics already used, do not repeat: {json.dumps(used)}\n"
+            f"Suggest {kind}.",
             Ideas,
         ).ideas
     for i in ideas:
         status = "approved" if AUTO_APPROVE_TOPICS else "idea"
-        vid = db.insert("videos", topic=i.topic, angle=i.angle, status=status,
+        vid = db.insert("videos", topic=i.topic, angle=i.angle, status=status, format=fmt,
                         created_at=time.time(), updated_at=time.time())
         if status == "idea":
-            db.insert("approvals", kind="topic", ref_id=vid, title=i.topic,
+            db.insert("approvals", kind="topic", ref_id=vid,
+                      title=("[DUGI] " if long else "") + i.topic,
                       detail=f"{i.angle}. {i.why}", created_at=time.time())
-    log("Scout", f"Predlaže {len(ideas)} nove teme")
+    log("Scout", f"Predlaže {len(ideas)} {'dugih' if long else 'kratkih'} tema")
     idle("Scout", "Prati trendove")
 
 
@@ -86,49 +108,77 @@ class Scene(BaseModel):
     visual: str
 
 
+class Chapter(BaseModel):
+    title: str
+    scenes: list[Scene]
+
+
 class Script(BaseModel):
     title: str
     thumbnail_text: str
-    scenes: list[Scene]
+    chapters: list[Chapter]  # kratki video ima jedno poglavlje
     description: str
     hashtags: list[str]
 
+    def scenes(self) -> list[Scene]:
+        return [sc for ch in self.chapters for sc in ch.scenes]
 
-def _demo_script(topic: str) -> Script:
-    return Script(
-        title=topic, thumbnail_text=" ".join(topic.split()[:4]),
-        scenes=[
+
+def _demo_script(topic: str, long: bool) -> Script:
+    if long:
+        chapters = [Chapter(title=t, scenes=[
+            Scene(narration=f"{t}. " + "Here is what most people get wrong, and how to fix it in a few simple steps. " * 2,
+                  visual=q) for q in ("technology office", "laptop screen")])
+            for t in ("Intro", "The basics", "Best tools", "Common mistakes", "Final tips")]
+    else:
+        chapters = [Chapter(title="Short", scenes=[
             Scene(narration=f"{topic}. Stay until the end, the last one is the best.", visual="neon city night"),
             Scene(narration="Number one. It takes ten seconds to set up and it is completely free.", visual="laptop typing"),
             Scene(narration="Number two. Most people never notice this, but it changes everything.", visual="smartphone closeup"),
             Scene(narration="And number three. Follow for more tips like this every day.", visual="abstract technology"),
-        ],
-        description=f"{topic} - quick tips every day.", hashtags=["ai", "tech", "tips", "shorts"],
-    )
+        ])]
+    return Script(title=topic, thumbnail_text=" ".join(topic.split()[:4]), chapters=chapters,
+                  description=f"{topic} - tips every day.", hashtags=["ai", "tech", "tips"])
+
+
+SHORT_BRIEF = (
+    "Write a 30-45 second voiceover script with exactly one chapter titled 'Short', split into 4-7 scenes. "
+    "The first scene is the hook and must grab attention in the first 2 seconds. "
+)
+LONG_BRIEF = (
+    "Write a 8-12 minute YouTube voiceover script (about 1400-1800 words in total). Structure it as 6-10 "
+    "chapters: the first chapter is 'Intro' with a strong hook and a promise of what the viewer will learn, "
+    "the last chapter wraps up and asks to subscribe. Each chapter has 2-6 scenes of 2-5 sentences. "
+    "Be specific and genuinely useful, no filler. "
+)
 
 
 def writer():
     v = db.row("SELECT * FROM videos WHERE status='approved' ORDER BY id LIMIT 1")
     if not v:
         return
+    long = v["format"] == "long"
     db.update_video(v["id"], status="writing")
-    work("Writer", f"Piše scenarij: {v['topic']}", 0.4)
+    work("Writer", f"Piše {'dugi ' if long else ''}scenarij: {v['topic']}", 0.4)
     if DEMO_MODE:
         time.sleep(3)
-        s = _demo_script(v["topic"])
+        s = _demo_script(v["topic"], long)
     else:
         s = llm.ask(
-            "You write viral short-form video scripts. Spoken, punchy, no filler, no emojis in narration.",
+            "You write scripts for a faceless video channel. Spoken language, punchy, no emojis in narration.",
             f"Topic: {v['topic']}\nAngle: {v['angle']}\nLanguage: {LANGUAGE}\n"
-            "Write a 30-45 second voiceover script split into 4-7 scenes. The first scene is the hook "
-            "and must grab attention in the first 2 seconds. For every scene give `visual`: a 2-4 word "
-            "English search query for vertical stock footage. Also give a title (max 70 chars), "
-            "thumbnail_text (max 5 words), a 1-2 sentence description and 3-6 hashtags without '#'.",
-            Script, effort="medium",
+            + (LONG_BRIEF if long else SHORT_BRIEF)
+            + "For every scene give `visual`: a 2-4 word English search query for "
+            + ("horizontal" if long else "vertical")
+            + " stock footage. Also give a title (max 70 chars), thumbnail_text (max 5 words), "
+            + ("a 3-4 sentence description" if long else "a 1-2 sentence description")
+            + " and 3-8 hashtags without '#'.",
+            Script, effort="medium", important=long,
         )
+    words = sum(len(x.narration.split()) for x in s.scenes())
     db.update_video(v["id"], status="scripted", script=s.model_dump_json(), title=s.title,
-                    description=s.description, hashtags=",".join(s.hashtags))
-    log("Writer", f"Scenarij gotov: {s.title} ({sum(len(x.narration.split()) for x in s.scenes)} riječi)")
+                    description=s.description, hashtags=",".join(h.lstrip("#") for h in s.hashtags))
+    log("Writer", f"Scenarij gotov: {s.title} ({words} riječi)")
     idle("Writer")
 
 
@@ -140,71 +190,89 @@ def _duration(path) -> float:
     return float(out.strip())
 
 
+def _stamp(sec: float) -> str:
+    sec = int(sec)
+    return f"{sec // 3600}:{sec // 60 % 60:02d}:{sec % 60:02d}" if sec >= 3600 else f"{sec // 60}:{sec % 60:02d}"
+
+
 def produce():
     v = db.row("SELECT * FROM videos WHERE status='scripted' ORDER BY id LIMIT 1")
     if not v:
         return
-    vid = v["id"]
+    vid, long = v["id"], v["format"] == "long"
     db.update_video(vid, status="producing")
     script = Script(**db.video_script(v))
+    scenes = script.scenes()
     folder = MEDIA_DIR / f"v{vid}-{uuid.uuid4().hex[:8]}"
     work_dir = folder / "work"
     work_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. glas
     work("Editor", "Snima glas", 0.1)
-    narration = " ".join(s.narration for s in script.scenes)
-    audio, words = tts.speak(narration, work_dir / "voice")
+    audio, words = tts.speak(" ".join(s.narration for s in scenes), work_dir / "voice")
     total = _duration(audio)
-    log("Editor", f"Glas gotov ({total:.0f} s)")
+    log("Editor", f"Glas gotov ({_stamp(total)})")
 
     # 2. podjela riječi po scenama -> trajanje svake scene
     bounds, i = [], 0
-    for s in script.scenes:
-        n = len(s.narration.split())
+    for s in scenes:
         bounds.append(words[i][1] if i < len(words) else total)
-        i += n
+        i += len(s.narration.split())
     bounds[0] = 0.0
     bounds.append(total)
-    durations = [max(0.5, bounds[k + 1] - bounds[k]) for k in range(len(script.scenes))]
+    durations = [max(0.5, bounds[k + 1] - bounds[k]) for k in range(len(scenes))]
 
     # 3. snimke
     clips = []
-    for k, (s, d) in enumerate(zip(script.scenes, durations)):
-        work("Clipper", f"Traži snimku: {s.visual}", (k + 1) / len(script.scenes))
-        clips.append((media.fetch_clip(s.visual, work_dir / f"clip{k}", d), d))
+    for k, (s, d) in enumerate(zip(scenes, durations)):
+        work("Clipper", f"Traži snimku {k + 1}/{len(scenes)}: {s.visual}", (k + 1) / len(scenes))
+        clips.append((media.fetch_clip(s.visual, work_dir / f"clip{k}", d, landscape=long), d))
     log("Clipper", f"Pronašao {len(clips)} snimki")
     idle("Clipper")
 
     # 4. montaža s titlovima
-    work("Editor", "Montira i dodaje titlove", 0.6)
+    work("Editor", f"Montira {'dugi ' if long else ''}video ({_stamp(total)})", 0.6)
     final = folder / f"{uuid.uuid4().hex}.mp4"
-    render.render(clips, audio, words, work_dir, final)
+    render.render(clips, audio, words, work_dir, final, landscape=long)
     idle("Editor")
     log("Editor", f"Video gotov: {script.title}")
 
-    # 5. naslovna slika
+    # 5. poglavlja u opisu (YouTube ih sam pretvori u oznake na traci)
+    description = script.description
+    if long and len(script.chapters) >= 3:
+        lines, k = [], 0
+        for ch in script.chapters:
+            lines.append(f"{_stamp(bounds[k])} {ch.title}")
+            k += len(ch.scenes)
+        description += "\n\nChapters:\n" + "\n".join(lines)
+
+    # 6. naslovna slika
     work("Designer", f"Radi thumbnail: {script.thumbnail_text}", 0.5)
     shot = render.frame(work_dir / "joined.mp4", min(1.5, total / 3), work_dir / "frame.jpg")  # bez titlova
-    thumb = thumbnail.make(shot, script.thumbnail_text, folder / f"{uuid.uuid4().hex}.jpg")
+    thumb = thumbnail.make(shot, script.thumbnail_text, folder / f"{uuid.uuid4().hex}.jpg", landscape=long)
     idle("Designer")
     log("Designer", "Thumbnail gotov")
     shutil.rmtree(work_dir, ignore_errors=True)
 
-    db.update_video(vid, status="review",
+    db.update_video(vid, status="review", description=description,
                     video_path=final.relative_to(MEDIA_DIR).as_posix(),
                     thumb_path=thumb.relative_to(MEDIA_DIR).as_posix())
     if AUTO_APPROVE_PUBLISH:
         schedule(vid)
     else:
+        where = "YouTube (dugi video)" if long else ", ".join(platforms.NAMES[p] for p in platforms.enabled())
         db.insert("approvals", kind="publish", ref_id=vid, title=script.title,
-                  detail=f"Objava na: {', '.join(platforms.NAMES[p] for p in platforms.enabled())}",
-                  created_at=time.time())
+                  detail=f"{_stamp(total)} · objava na: {where}", created_at=time.time())
+
+
+def targets(fmt: str) -> list[str]:
+    ready = platforms.ready()
+    return [p for p in ready if p == "youtube"] if fmt == "long" else ready
 
 
 # ---------- raspored ----------
 
-def next_slot() -> float:
+def next_slot(fmt: str = "short") -> float:
     taken = {round(r["scheduled_at"]) for r in db.rows(
         "SELECT scheduled_at FROM videos WHERE status IN ('scheduled','publishing') AND scheduled_at IS NOT NULL")}
     if DEMO_MODE:  # u demu ne čekamo do sutra
@@ -214,9 +282,15 @@ def next_slot() -> float:
         return t
     tz = ZoneInfo(TIMEZONE)
     now = datetime.now(tz)
-    for day in range(30):
+    for day in range(60):
         d = (now + timedelta(days=day)).date()
-        for hm in sorted(POST_TIMES):
+        if fmt == "long":
+            if WEEKDAYS[d.weekday()] not in LONG_DAYS:
+                continue
+            times = [LONG_TIME]
+        else:
+            times = sorted(POST_TIMES)
+        for hm in times:
             h, m = map(int, hm.split(":"))
             slot = datetime(d.year, d.month, d.day, h, m, tzinfo=tz).timestamp()
             if slot > now.timestamp() + 60 and round(slot) not in taken:
@@ -225,7 +299,8 @@ def next_slot() -> float:
 
 
 def schedule(vid: int):
-    at = next_slot()
+    v = db.row("SELECT format FROM videos WHERE id=?", vid)
+    at = next_slot(v["format"] if v else "short")
     db.update_video(vid, status="scheduled", scheduled_at=at)
     when = datetime.fromtimestamp(at, ZoneInfo(TIMEZONE)).strftime("%d.%m. u %H:%M")
     log("Publisher", f"Zakazano za {when}")
@@ -242,9 +317,9 @@ def publisher():
     video, thumb = MEDIA_DIR / v["video_path"], MEDIA_DIR / v["thumb_path"]
     tags = [t for t in (v["hashtags"] or "").split(",") if t]
     ok = 0
-    targets = platforms.ready()
-    for k, name in enumerate(targets):
-        work("Publisher", f"Objavljuje na {platforms.NAMES[name]}", (k + 0.5) / len(targets))
+    targets_ = targets(v["format"])
+    for k, name in enumerate(targets_):
+        work("Publisher", f"Objavljuje na {platforms.NAMES[name]}", (k + 0.5) / len(targets_))
         post = db.insert("posts", video_id=v["id"], platform=name, status="uploading")
         try:
             if DEMO_MODE:
@@ -256,7 +331,7 @@ def publisher():
         except Exception as e:
             db.update("posts", post, status="failed", error=str(e)[:500])
             log("Publisher", f"{platforms.NAMES[name]} greška: {e}")
-    if not targets:
+    if not targets_:
         log("Publisher", "Nijedna platforma nije povezana")
     db.update_video(v["id"], status="published" if ok else "failed",
                     error=None if ok else "Objava nije uspjela ni na jednoj platformi")

@@ -39,7 +39,11 @@ def upload(video: Path, title: str, description: str, tags: list[str], thumb: Pa
     while resp is None:
         _, resp = req.next_chunk()
     vid = resp["id"]
-    return vid, f"https://youtube.com/shorts/{vid}"
+    try:  # vlastiti thumbnail radi samo na kanalu potvrđenom brojem mobitela (youtube.com/verify)
+        _api().thumbnails().set(videoId=vid, media_body=MediaFileUpload(str(thumb), mimetype="image/jpeg")).execute()
+    except Exception:
+        pass
+    return vid, f"https://youtube.com/watch?v={vid}"
 
 
 def stats(ext_id: str) -> dict:

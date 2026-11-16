@@ -18,14 +18,16 @@ def _font(size: int):
     return ImageFont.load_default(size)
 
 
-def make(frame: Path, text: str, out: Path, accent=(255, 43, 214)) -> Path:
-    img = Image.open(frame).convert("RGB").resize((1080, 1920))
+def make(frame: Path, text: str, out: Path, landscape: bool = False, accent=(255, 43, 214)) -> Path:
+    """Kratki: 1080x1920. Dugi (YouTube): 1280x720, kako YouTube traži."""
+    W, H = (1280, 720) if landscape else (1080, 1920)
+    img = Image.open(frame).convert("RGB").resize((W, H))
     img = ImageEnhance.Brightness(img).enhance(0.55)
-    font = _font(150)
-    lines = textwrap.wrap(text.upper(), width=10)[:4]
+    font = _font(120 if landscape else 150)
+    lines = textwrap.wrap(text.upper(), width=16 if landscape else 10)[:3 if landscape else 4]
     draw = ImageDraw.Draw(img)
     heights = [draw.textbbox((0, 0), ln, font=font)[3] for ln in lines]
-    y = (1920 - sum(heights) - 30 * len(lines)) // 2
+    y = (H - sum(heights) - 30 * len(lines)) // 2
 
     # sjaj: isti tekst u boji, zamućen, ispod bijelog teksta
     glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -33,8 +35,8 @@ def make(frame: Path, text: str, out: Path, accent=(255, 43, 214)) -> Path:
     pos = []
     for ln, h in zip(lines, heights):
         w = draw.textlength(ln, font=font)
-        pos.append(((1080 - w) / 2, y))
-        gd.text(((1080 - w) / 2, y), ln, font=font, fill=accent + (255,), stroke_width=14, stroke_fill=accent + (255,))
+        pos.append(((W - w) / 2, y))
+        gd.text(((W - w) / 2, y), ln, font=font, fill=accent + (255,), stroke_width=14, stroke_fill=accent + (255,))
         y += h + 30
     glow = glow.filter(ImageFilter.GaussianBlur(18))
     img = Image.alpha_composite(img.convert("RGBA"), glow)

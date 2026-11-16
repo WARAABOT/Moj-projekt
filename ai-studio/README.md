@@ -1,30 +1,53 @@
-# AI Studio
+# AI Studio · Byte Crew
 
-AI tim koji sam radi kratke videe (glas + snimke + titlovi) i objavljuje ih na **YouTube Shorts**, **TikTok** i **Instagram Reels**. Ti sve pratiš na neonskoj ploči i samo odobravaš.
+AI tim koji sam radi videe i objavljuje ih:
+- **kratke** (30–45 s, uspravne) 3 puta dnevno na **YouTube Shorts**, **TikTok** i **Instagram Reels**
+- **duge** (8–12 min, vodoravne, s poglavljima) 2–3 puta tjedno na **YouTube**
+
+Ti sve pratiš na neonskoj ploči i samo odobravaš. **Sve radi besplatno**: jedini trošak je tvoja Claude pretplata koju ionako imaš.
+
+| Dokument | Što je u njemu |
+|---|---|
+| [`RACUNI.md`](RACUNI.md) | Popis računa i ključeva koje otvaraš, korak po korak |
+| [`ORACLE.md`](ORACLE.md) | Postavljanje besplatnog servera |
+| [`branding/OPISI.md`](branding/OPISI.md) | Ime kanala, opisi, bio, logo i banneri |
 
 ## Kako radi
 
-| Agent | Što radi | Alat |
+| Agent | Što radi | Alat (cijena) |
 |---|---|---|
-| **Scout** | Predlaže teme (uči iz tvojih najgledanijih videa) | Claude |
-| **Writer** | Scenarij od 30–45 s, naslov, opis, hashtagovi | Claude |
-| **Clipper** | Uspravne snimke za svaku scenu | Pexels (besplatno) |
-| **Editor** | Glas, titlovi riječ po riječ, montaža 1080×1920 | ElevenLabs + ffmpeg |
-| **Designer** | Naslovna slika (thumbnail) | Pillow |
-| **Publisher** | Objava u tvojim terminima na sve platforme | YouTube, TikTok, Instagram API |
-| **Analyst** | Pregledi, lajkovi, pratitelji | API-ji platformi |
-| **Community** | Čita komentare i predlaže odgovore | Claude |
+| **Scout** | Predlaže teme, uči iz najgledanijih videa | AI mozak (0 €) |
+| **Writer** | Scenarij, naslov, opis, hashtagovi, poglavlja | AI mozak (0 €) |
+| **Clipper** | Snimke za svaku scenu | Pexels (0 €) |
+| **Editor** | Glas, titlovi riječ po riječ, montaža | Kokoro + ffmpeg, na serveru (0 €) |
+| **Designer** | Thumbnail | Pillow (0 €) |
+| **Publisher** | Objava u tvojim terminima | API-ji platformi (0 €) |
+| **Analyst** | Pregledi, lajkovi, pratitelji | API-ji platformi (0 €) |
+| **Community** | Predlaže odgovore na komentare | AI mozak (0 €) |
 
-Na ploči u odjeljku **Treba tvoje odobrenje** odobravaš:
-1. **teme** koje je Scout predložio,
-2. **gotov video** prije objave (možeš ga pogledati),
-3. **odgovore na komentare** (možeš ih prepraviti prije slanja).
+**AI mozak** redom pita besplatne modele: Gemini → Groq → OpenRouter. Tvoju Claude pretplatu koristi samo:
+- za scenarije dugih videa, gdje je kvaliteta najvažnija (2–3 puta tjedno),
+- kad svi besplatni zakažu,
+- i najviše `CLAUDE_CODE_DAILY_LIMIT` puta dnevno (zadano 6), pa ti ostane gotovo sav limit za tebe.
 
-Ako želiš da sve ide samo, u `.env` stavi `AUTO_APPROVE_TOPICS=true` i/ili `AUTO_APPROVE_PUBLISH=true`.
+Svaki poziv vidiš u dnevniku na ploči (npr. "gemini odgovorio za 4 s").
 
-## Isprobaj odmah (demo)
+Na ploči u **Treba tvoje odobrenje** odobravaš teme, gotove videe (možeš ih pogledati) i odgovore na komentare.
+Ako želiš da sve ide samo, u `.env` stavi `AUTO_APPROVE_TOPICS=true` i `AUTO_APPROVE_PUBLISH=true`.
 
-Bez ijednog ključa sve se simulira, pa vidiš kako ploča radi. Video se stvarno izradi (s gradijentima umjesto snimki i bez glasa), a objave su lažne.
+## Troškovi
+
+| Stavka | Cijena |
+|---|---|
+| Server (Oracle Always Free) | 0 € |
+| Adresa (DuckDNS) | 0 € |
+| AI mozak (Gemini, Groq, OpenRouter) | 0 € |
+| Glas (Kokoro) i snimke (Pexels) | 0 € |
+| Claude pretplata (već je imaš) | 23 € mjesečno |
+
+## Isprobaj na svom računalu (demo)
+
+Bez ijednog ključa sve se simulira. Video se stvarno izradi, ali s gradijentima umjesto snimki i bez glasa, a objave su lažne.
 
 ```bash
 cd ai-studio
@@ -35,67 +58,13 @@ uvicorn app.main:app --port 8000
 
 Otvori http://localhost:8000. Treba ti instaliran `ffmpeg`.
 
-## Postavljanje na server
+## Ograničenja platformi
 
-1. **Server**: bilo koji VPS s Ubuntuom (Hetzner, DigitalOcean… od oko 5 € mjesečno, barem 2 GB RAM-a). Instaliraj Docker: `curl -fsSL https://get.docker.com | sh`
-2. **Domena**: napravi A zapis, npr. `studio.mojadomena.com`, koji pokazuje na IP servera.
-3. **Kod**: `git clone` ovaj repozitorij na server pa `cd Moj-projekt/ai-studio`.
-4. **Postavke**: `cp .env.example .env` i popuni (vidi dolje). Obavezno postavi `DASHBOARD_PASSWORD`.
-5. **Pokreni**: `docker compose up -d --build`
-6. Otvori `https://studio.mojadomena.com`. HTTPS certifikat se napravi sam.
-
-Ažuriranje: `git pull && docker compose up -d --build`. Podaci i videi ostaju u mapi `data/`.
-
-## Ključevi
-
-### Claude (obavezno)
-[console.anthropic.com](https://console.anthropic.com) → API Keys → `ANTHROPIC_API_KEY`.
-Kad je ključ upisan, demo se sam isključuje.
-
-### ElevenLabs (glas)
-[elevenlabs.io](https://elevenlabs.io) → profil → API key → `ELEVENLABS_API_KEY`.
-Glas biraš u Voice Library i kopiraš njegov ID u `ELEVENLABS_VOICE_ID`.
-
-### Pexels (snimke)
-[pexels.com/api](https://www.pexels.com/api/) → besplatan ključ → `PEXELS_API_KEY`.
-
-### YouTube
-1. [console.cloud.google.com](https://console.cloud.google.com) → novi projekt → uključi **YouTube Data API v3**.
-2. **OAuth consent screen**: External, dodaj svoj Gmail kao test usera.
-3. **Credentials → Create OAuth client → Web application**, Redirect URI: `https://TVOJA-DOMENA/auth/youtube/callback`
-4. Client ID i secret upiši u `.env`, restartaj, pa na ploči na YouTube kartici klikni **Poveži račun**.
-
-Dok Google ne pregleda aplikaciju (audit), videi koje API objavi ostaju **privatni**. Zahtjev za audit šalješ preko obrasca *YouTube API Services – Audit and Quota Extension*. Besplatna kvota je oko 6 objava dnevno.
-
-### TikTok
-1. [developers.tiktok.com](https://developers.tiktok.com) → Manage apps → nova aplikacija.
-2. Dodaj proizvode **Login Kit** i **Content Posting API**. Redirect URI: `https://TVOJA-DOMENA/auth/tiktok/callback`
-3. Scope: `user.info.basic`, `user.info.stats`, `video.upload`, `video.publish`, `video.list`.
-4. Client key i secret upiši u `.env`, pa na ploči klikni **Poveži račun**.
-
-`TIKTOK_MODE=inbox` radi odmah: video stiže u TikTok aplikaciju kao obavijest, a ti ga objaviš jednim klikom.
-Za potpuno automatsku objavu (`TIKTOK_MODE=direct`) TikTok mora odobriti tvoju aplikaciju. Dok to ne napravi, objave su vidljive samo tebi.
-TikTokov API ne daje komentare, pa Community radi samo za YouTube i Instagram.
-
-### Instagram Reels
-1. Instagram račun prebaci u **Business** ili **Creator** i poveži ga s Facebook stranicom.
-2. [developers.facebook.com](https://developers.facebook.com) → nova aplikacija → dodaj **Instagram Graph API**.
-3. Dozvole: `instagram_basic`, `instagram_content_publish`, `instagram_manage_comments`, `pages_show_list`.
-4. U Graph API Exploreru napravi **dugotrajni token** stranice i pronađi ID Instagram računa (`me/accounts?fields=instagram_business_account`).
-5. Upiši `INSTAGRAM_USER_ID` i `INSTAGRAM_ACCESS_TOKEN`.
-
-Instagram preuzima video s tvog servera, pa `PUBLIC_BASE_URL` mora biti javna HTTPS adresa.
-
-## Troškovi (otprilike)
-
-| Stavka | Cijena |
-|---|---|
-| Server | ~5 € mjesečno |
-| Claude (tema + scenarij + odgovori) | ~0,03–0,08 $ po videu |
-| ElevenLabs | Creator plan 22 $ mjesečno ≈ 150 videa |
-| Pexels | besplatno |
-
-3 videa dnevno ukupno izađu oko 35–45 € mjesečno.
+- **YouTube:** dok Google ne napravi audit tvoje aplikacije, videi objavljeni preko API-ja ostaju **privatni**. Zahtjev šalješ jednom (vidi `RACUNI.md`). Za vlastiti thumbnail kanal mora biti potvrđen na youtube.com/verify.
+- **TikTok:** dok TikTok ne odobri aplikaciju, `TIKTOK_MODE=inbox` šalje video u TikTok aplikaciju, a ti ga objaviš jednim klikom. TikTok ne daje komentare kroz API.
+- **Instagram:** preuzima video s tvog servera, pa server mora imati javnu HTTPS adresu.
+- **Besplatni AI modeli** imaju dnevne limite. Zato ih ima nekoliko, a sustav sam prelazi na sljedeći.
+- Svi videi su označeni kao AI sadržaj (YouTube `containsSyntheticMedia`, TikTok `is_aigc`), jer platforme to traže.
 
 ## Struktura
 
@@ -103,14 +72,13 @@ Instagram preuzima video s tvog servera, pa `PUBLIC_BASE_URL` mora biti javna HT
 app/
   main.py          web server, API za ploču, povezivanje računa
   orchestrator.py  pokreće agente u pozadini
-  agents/crew.py   što svaki agent radi
+  llm.py           AI mozak (besplatni modeli + tvoja Claude pretplata)
+  agents/crew.py   što svaki agent radi (kratki i dugi videi)
   services/        glas, snimke, montaža, thumbnail, YouTube, TikTok, Instagram
 web/               ploča (HTML, CSS, JS)
-data/              baza i gotovi videi (ne ide u git)
+branding/          logo, banneri, opisi
+scripts/           make_branding.py: ponovno napravi logo i bannere
+data/              baza, videi i Kokoro model (ne ide u git)
 ```
 
-## Dobro je znati
-
-- Svi videi su označeni kao AI sadržaj (YouTube `containsSyntheticMedia`, TikTok `is_aigc`), jer platforme to traže.
-- Ako neki korak pukne, video dobije status **Greška** s razlogom, a gumbom **Ponovi** ga vraćaš u red.
-- Nemoj objavljivati isti tekst masovno na više kanala: platforme to vide kao spam.
+Ako neki korak pukne, video dobije status **Greška** s razlogom, a gumbom **Ponovi** ga vraćaš u red.

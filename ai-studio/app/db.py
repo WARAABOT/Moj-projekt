@@ -10,6 +10,7 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS videos (
   id INTEGER PRIMARY KEY,
   topic TEXT, angle TEXT,
+  format TEXT DEFAULT 'short',  -- short (uspravni, 30-45 s) ili long (YouTube, 8-12 min)
   status TEXT,              -- idea, writing, scripted, producing, review, scheduled, publishing, published, rejected, failed
   script TEXT,              -- JSON od Writera
   title TEXT, description TEXT, hashtags TEXT,
@@ -69,6 +70,9 @@ def conn():
 def init():
     with conn() as c:
         c.executescript(SCHEMA)
+        cols = {r["name"] for r in c.execute("PRAGMA table_info(videos)")}
+        if "format" not in cols:  # nadogradnja starije baze
+            c.execute("ALTER TABLE videos ADD COLUMN format TEXT DEFAULT 'short'")
 
 
 def rows(sql: str, *args) -> list[dict]:

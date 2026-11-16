@@ -62,6 +62,13 @@ INSTAGRAM_USER_ID = env("INSTAGRAM_USER_ID")
 INSTAGRAM_ACCESS_TOKEN = env("INSTAGRAM_ACCESS_TOKEN")
 GRAPH_API = env("GRAPH_API", "https://graph.facebook.com/v21.0")
 
-# Demo način: bez ključeva sve se simulira, da vidiš kako ploča radi
-DEMO_MODE = flag("DEMO_MODE", default=not ANTHROPIC_API_KEY)
+# Demo način: bez ijednog AI ključa sve se simulira, da vidiš kako ploča radi
+_ANY_AI = any(env(k) for k in ("GEMINI_API_KEY", "GROQ_API_KEY", "OPENROUTER_API_KEY",
+                                "ANTHROPIC_API_KEY", "CLAUDE_CODE_OAUTH_TOKEN"))
+DEMO_MODE = flag("DEMO_MODE", default=not _ANY_AI)
+
+# Dugi YouTube videi (vodoravni, 8-12 min): dani i sat objave
+LONG_ENABLED = flag("LONG_ENABLED", True)
+LONG_DAYS = [d.strip().lower()[:3] for d in env("LONG_DAYS", "tue,thu,sat").split(",") if d.strip()]
+LONG_TIME = env("LONG_TIME", "17:00")
 
