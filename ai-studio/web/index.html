@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="hr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="dot live"></span>AI&nbsp;STUDIO <small id="niche"></small></div>
+  <div class="top-right">
+    <span id="demo" class="pill warn" hidden>DEMO — objave se simuliraju</span>
+    <span class="mono"><span class="dot"></span> <b id="online">0</b> agenata online</span>
+    <span class="mono" id="clock"></span>
+  </div>
+</header>
+
+<section class="kpis" id="kpis"></section>
+
+<main class="grid">
+  <aside class="panel team">
+    <h2>Tim agenata <span class="count" id="team-count"></span></h2>
+    <div id="team"></div>
+  </aside>
+
+  <section class="center">
+    <div class="panel">
+      <h2>Content pipeline <span class="count" id="moving"></span></h2>
+      <div class="platforms" id="platforms"></div>
+    </div>
+    <div class="panel office-wrap">
+      <div class="office" id="office"></div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="panel">
+      <h2>Pregledi <span class="count">uživo</span></h2>
+      <canvas id="chart" height="120"></canvas>
+    </div>
+    <div class="panel">
+      <h2>Komentari <span class="count">uživo</span></h2>
+      <div id="comments" class="feed"></div>
+    </div>
+  </aside>
+</main>
+
+<section class="bottom">
+  <div class="panel">
+    <h2>Treba tvoje odobrenje <span class="count" id="ok-count"></span></h2>
+    <div id="approvals"></div>
+  </div>
+  <div class="panel">
+    <h2>Ovaj tjedan <span class="count" id="week-count"></span></h2>
+    <div id="week" class="week"></div>
+  </div>
+  <div class="panel">
+    <h2>Zadnji video <span class="count">objavljen</span></h2>
+    <div id="latest"></div>
+  </div>
+</section>
+
+<section class="bottom two">
+  <div class="panel">
+    <h2>Proizvodnja</h2>
+    <div id="videos" class="videos"></div>
+  </div>
+  <div class="panel">
+    <h2>Dnevnik</h2>
+    <div id="log" class="log"></div>
+  </div>
+</section>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

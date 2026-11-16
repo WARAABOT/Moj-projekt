@@ -1,0 +1,9 @@
+anthropic==2.9.0
+fastapi==0.163.1
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+pillow==13.0.0
+pydantic==2.14.3
+python-dotenv==1.2.4
+google-api-python-client==2.202.0
+google-auth==2.62.2
