@@ -40,5 +40,5 @@ def fail(agent: str, task: str):
            task[:120], time.time(), agent)
 
 
-def log(agent: str, message: str):
-    db.insert("events", ts=time.time(), agent=agent, message=message[:300])
+def log(agent: str, message: str, channel_id: int | None = None):
+    db.insert("events", ts=time.time(), agent=agent, message=message[:300], channel_id=channel_id)

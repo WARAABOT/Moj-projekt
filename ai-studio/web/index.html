@@ -10,7 +10,12 @@
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="dot live"></span>AI&nbsp;STUDIO <small id="niche"></small></div>
+  <div class="top-left">
+    <div class="brand"><span class="dot live"></span>AI&nbsp;STUDIO</div>
+    <label class="picker"><span class="sw" id="ch-color"></span>
+      <select id="channel" aria-label="Odaberi kanal"></select></label>
+    <button class="btn no small" id="manage">⚙ Kanali</button>
+  </div>
   <div class="top-right">
     <span id="demo" class="pill warn" hidden>DEMO — objave se simuliraju</span>
     <span class="mono"><span class="dot"></span> <b id="online">0</b> agenata online</span>
@@ -73,6 +78,61 @@
     <div id="log" class="log"></div>
   </div>
 </section>
+
+<dialog id="dlg">
+  <div class="dlg-head">
+    <h2>Kanali</h2>
+    <button class="btn no small" id="dlg-close" aria-label="Zatvori">✕</button>
+  </div>
+  <div class="dlg-grid">
+    <div>
+      <div id="ch-list"></div>
+      <button class="btn ok small" id="ch-new" style="width:100%;margin-top:8px">+ Novi kanal</button>
+    </div>
+    <form id="ch-form" autocomplete="off">
+      <h3 id="form-title">Novi kanal</h3>
+      <div class="row2">
+        <label>Ime kanala<input name="name" required placeholder="npr. Chef Bytes"></label>
+        <label>Boja<input name="color" type="color" value="#ff2bd6"></label>
+      </div>
+      <label>Tema (o čemu su videi)<input name="niche" placeholder="npr. easy healthy recipes"></label>
+      <div class="row2">
+        <label>Jezik videa<input name="language" value="English" list="langs"></label>
+        <label>Glas<select name="voice" id="voices"></select></label>
+      </div>
+      <datalist id="langs"><option>English</option><option>Croatian</option><option>German</option><option>Spanish</option><option>French</option></datalist>
+      <label>Kratki videi: sati objave (zarezom)<input name="post_times" placeholder="09:00,13:00,18:00"></label>
+      <fieldset><legend>Platforme</legend>
+        <label class="ck"><input type="checkbox" name="pf" value="youtube"> YouTube</label>
+        <label class="ck"><input type="checkbox" name="pf" value="tiktok"> TikTok</label>
+        <label class="ck"><input type="checkbox" name="pf" value="instagram"> Instagram</label>
+      </fieldset>
+      <fieldset><legend><label class="ck"><input type="checkbox" name="long_enabled"> Dugi YouTube videi</label></legend>
+        <div id="days"></div>
+        <label>Sat objave<input name="long_time" type="time" value="17:00"></label>
+      </fieldset>
+      <fieldset><legend>Bez pitanja (automatski)</legend>
+        <label class="ck"><input type="checkbox" name="auto_topics"> odobri teme</label>
+        <label class="ck"><input type="checkbox" name="auto_publish"> objavi gotove videe</label>
+        <label class="ck"><input type="checkbox" name="active"> kanal je aktivan</label>
+      </fieldset>
+      <fieldset><legend>Instagram (vidi RACUNI.md)</legend>
+        <label>Instagram User ID<input name="ig_user_id"></label>
+        <label>Access token<input name="ig_token" type="password" id="ig-token"></label>
+      </fieldset>
+      <div class="btns"><button class="btn ok" type="submit">Spremi</button><span id="form-msg" class="mono"></span></div>
+
+      <div id="extra" hidden>
+        <h3>Povezani računi</h3>
+        <div id="conn" class="conn"></div>
+        <h3>Logo i banner</h3>
+        <label>Slogan na banneru<input id="tagline" placeholder="npr. Healthy recipes in 30 seconds"></label>
+        <button class="btn no" type="button" id="make-brand">Napravi logo i banner</button>
+        <div id="brand-out" class="brand-out"></div>
+      </div>
+    </form>
+  </div>
+</dialog>
 
 <script src="/static/app.js"></script>
 </body>

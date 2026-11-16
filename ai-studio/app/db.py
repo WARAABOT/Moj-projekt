@@ -7,6 +7,19 @@ from contextlib import contextmanager
 from .config import DB_PATH
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS channels (
+  id INTEGER PRIMARY KEY,
+  name TEXT, niche TEXT, language TEXT DEFAULT 'English',
+  color TEXT DEFAULT '#ff2bd6',   -- boja kanala na ploči i u logu
+  voice TEXT DEFAULT 'am_michael', -- Kokoro glas
+  post_times TEXT DEFAULT '09:00,13:00,18:00',
+  long_enabled INTEGER DEFAULT 1, long_days TEXT DEFAULT 'tue,thu,sat', long_time TEXT DEFAULT '17:00',
+  platforms TEXT DEFAULT 'youtube,tiktok,instagram',
+  auto_topics INTEGER DEFAULT 0, auto_publish INTEGER DEFAULT 0,
+  ig_user_id TEXT, ig_token TEXT,
+  active INTEGER DEFAULT 1,
+  created_at REAL
+);
 CREATE TABLE IF NOT EXISTS videos (
   id INTEGER PRIMARY KEY,
   topic TEXT, angle TEXT,
@@ -70,9 +83,12 @@ def conn():
 def init():
     with conn() as c:
         c.executescript(SCHEMA)
-        cols = {r["name"] for r in c.execute("PRAGMA table_info(videos)")}
-        if "format" not in cols:  # nadogradnja starije baze
-            c.execute("ALTER TABLE videos ADD COLUMN format TEXT DEFAULT 'short'")
+        # nadogradnja starije baze: dodaj stupce koji nedostaju
+        for table, col, decl in [("videos", "format", "TEXT DEFAULT 'short'"),
+                                 ("videos", "channel_id", "INTEGER"), ("approvals", "channel_id", "INTEGER"),
+                                 ("stats", "channel_id", "INTEGER"), ("events", "channel_id", "INTEGER")]:
+            if col not in {r["name"] for r in c.execute(f"PRAGMA table_info({table})")}:
+                c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {decl}")
 
 
 def rows(sql: str, *args) -> list[dict]:

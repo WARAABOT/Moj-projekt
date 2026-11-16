@@ -16,18 +16,20 @@ Word = tuple[str, float, float]  # riječ, početak, kraj (sekunde)
 
 KOKORO_DIR = DATA_DIR / "kokoro"
 KOKORO_URL = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/"
-KOKORO_VOICE = env("KOKORO_VOICE", "am_michael")
+KOKORO_VOICE = env("KOKORO_VOICE", "am_michael")  # zadani glas; svaki kanal može imati svoj
+VOICES = ["am_michael", "am_adam", "am_eric", "am_liam", "am_onyx", "af_heart", "af_bella", "af_nicole",
+          "af_sarah", "af_sky", "bm_george", "bm_lewis", "bf_emma", "bf_isabella"]
 KOKORO_SPEED = float(env("KOKORO_SPEED", "1.05"))
 _kokoro = None
 _lock = threading.Lock()
 
 
-def speak(text: str, out: Path) -> tuple[Path, list[Word]]:
+def speak(text: str, out: Path, voice: str | None = None) -> tuple[Path, list[Word]]:
     if DEMO_MODE:
         return _silent(text, out)
     if ELEVENLABS_API_KEY:
         return _elevenlabs(text, out)
-    return _kokoro_speak(text, out)
+    return _kokoro_speak(text, out, voice or KOKORO_VOICE)
 
 
 # ---------- Kokoro (besplatno) ----------
@@ -53,7 +55,7 @@ def _load_kokoro():
     return _kokoro
 
 
-def _kokoro_speak(text: str, out: Path) -> tuple[Path, list[Word]]:
+def _kokoro_speak(text: str, out: Path, voice: str) -> tuple[Path, list[Word]]:
     import numpy as np
     import soundfile as sf
 
@@ -61,7 +63,7 @@ def _kokoro_speak(text: str, out: Path) -> tuple[Path, list[Word]]:
     sentences = [s for s in re.split(r"(?<=[.!?])\s+", text.strip()) if s.strip()]
     pieces, words, t = [], [], 0.0
     for s in sentences:
-        samples, sr = k.create(s, voice=KOKORO_VOICE, speed=KOKORO_SPEED, lang="en-us")
+        samples, sr = k.create(s, voice=voice, speed=KOKORO_SPEED, lang="en-gb" if voice.startswith("b") else "en-us")
         dur = len(samples) / sr
         # Kokoro ne daje vrijeme svake riječi, pa ga dijelimo po duljini riječi unutar rečenice
         ws = s.split()

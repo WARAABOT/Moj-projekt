@@ -33,7 +33,21 @@ Ti sve pratiš na neonskoj ploči i samo odobravaš. **Sve radi besplatno**: jed
 Svaki poziv vidiš u dnevniku na ploči (npr. "gemini odgovorio za 4 s").
 
 Na ploči u **Treba tvoje odobrenje** odobravaš teme, gotove videe (možeš ih pogledati) i odgovore na komentare.
-Ako želiš da sve ide samo, u `.env` stavi `AUTO_APPROVE_TOPICS=true` i `AUTO_APPROVE_PUBLISH=true`.
+Ako želiš da sve ide samo, u **⚙ Kanali** uključi *odobri teme* i *objavi gotove videe* za taj kanal.
+
+## Više kanala (profila)
+
+Jedan dashboard vodi sve kanale. Gore lijevo biraš **Svi kanali** ili jedan kanal, a sve na ploči se filtrira po tom izboru.
+
+Novi kanal dodaješ tipkom **⚙ Kanali → + Novi kanal**:
+1. upišeš ime, temu (npr. "easy healthy recipes"), boju, glas i sate objave, pa klikneš **Spremi**,
+2. klikneš **Napravi logo i banner** i preuzmeš slike za profile,
+3. otvoriš račune za taj kanal (`RACUNI.md`, dio *Za svaki novi kanal*),
+4. u istom prozoru klikneš **Poveži** za YouTube i TikTok, a za Instagram upišeš ID i token.
+
+Svaki kanal ima svoju temu, jezik, glas, boju, termine, dane za duge videe i svoje račune.
+Isti tim agenata radi za sve kanale, a u dnevniku i proizvodnji vidiš oznaku kanala.
+Kanal možeš pauzirati (makni kvačicu *kanal je aktivan*): tada ne radi nove videe.
 
 ## Troškovi
 

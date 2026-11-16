@@ -1,12 +1,13 @@
-"""Jedno mjesto za sve platforme. U demo načinu objave se samo simuliraju."""
+"""Jedno mjesto za sve platforme. Sve funkcije primaju kanal (ch). U demo načinu objave se simuliraju."""
 import random
 import uuid
 from types import SimpleNamespace
 
-from ..config import DEMO_MODE, PLATFORMS
+from .. import channels
+from ..config import DEMO_MODE
 from . import instagram, tiktok, youtube
 
-NAMES = {"youtube": "YouTube Shorts", "tiktok": "TikTok", "instagram": "Instagram Reels"}
+NAMES = {"youtube": "YouTube", "tiktok": "TikTok", "instagram": "Instagram Reels"}
 _REAL = {"youtube": youtube, "tiktok": tiktok, "instagram": instagram}
 
 _FAKE_COMMENTS = [
@@ -17,21 +18,21 @@ _FAKE_COMMENTS = [
 
 
 def _demo(name: str):
-    def stats(ext_id: str) -> dict:
+    def stats(ch, ext_id: str) -> dict:
         r = random.Random(ext_id)
         base = r.randint(800, 9000)
         return {"views": base, "likes": base // r.randint(8, 20), "comments": base // r.randint(80, 200)}
 
     return SimpleNamespace(
-        ready=lambda: True,
-        upload=lambda video, title, desc, tags, thumb: (
+        ready=lambda ch: True,
+        upload=lambda ch, video, title, desc, tags, thumb: (
             (eid := uuid.uuid4().hex[:11]), f"https://example.com/{name}/{eid}"),
         stats=stats,
-        followers=lambda: 0,
-        comments=lambda ext_id: [
+        followers=lambda ch: 0,
+        comments=lambda ch, ext_id: [
             {"id": uuid.uuid4().hex, "author": f"user{random.randint(100, 999)}", "text": random.choice(_FAKE_COMMENTS)}
         ] if random.random() < 0.5 else [],
-        reply=lambda comment_id, text: None,
+        reply=lambda ch, comment_id, text: None,
     )
 
 
@@ -39,9 +40,9 @@ def get(name: str):
     return _demo(name) if DEMO_MODE else _REAL[name]
 
 
-def enabled() -> list[str]:
-    return [p for p in PLATFORMS if p in _REAL]
+def enabled(ch: dict) -> list[str]:
+    return [p for p in channels.platform_list(ch) if p in _REAL]
 
 
-def ready() -> list[str]:
-    return [p for p in enabled() if get(p).ready()]
+def ready(ch: dict) -> list[str]:
+    return [p for p in enabled(ch) if get(p).ready(ch)]

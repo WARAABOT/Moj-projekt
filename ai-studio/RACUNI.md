@@ -69,3 +69,18 @@ Za ovo ti treba adresa servera (korak 4).
 - [ ] YouTube kartica → **Poveži račun**
 - [ ] TikTok kartica → **Poveži račun**
 - [ ] Instagram kartica pokazuje broj objava (bez upozorenja) → povezan je
+
+## Za svaki novi kanal
+
+Developer aplikacije (Google Cloud, TikTok, Meta), AI ključevi i server su **zajednički**. Ne radiš ih ponovno.
+
+- [ ] na ploči: **⚙ Kanali → + Novi kanal** → ime, tema, boja, glas → **Spremi** → **Napravi logo i banner**
+- [ ] novi **Gmail** za taj kanal
+- [ ] **YouTube** kanal, **TikTok** i **Instagram** (+ Facebook stranica), kao u koraku 2, s novim logom
+- [ ] **Google Cloud** → *OAuth consent screen* → *Test users* → dodaj novi Gmail
+  (dok aplikacija nije objavljena, Google pušta samo test korisnike)
+- [ ] **TikTok for Developers**: dok aplikacija nije odobrena, dodaj novi TikTok račun kao *Target user* u *Sandbox*
+- [ ] **Instagram**: u Graph API Exploreru napravi token za Facebook stranicu tog kanala (korak 5)
+- [ ] na ploči, u prozoru tog kanala: **Poveži** YouTube i TikTok (prijavi se računima tog kanala!), upiši Instagram ID i token
+
+Pazi kod povezivanja: Google i TikTok te pitaju kojim računom se prijavljuješ, pa odaberi račun **baš tog kanala**.
