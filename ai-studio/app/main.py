@@ -39,7 +39,9 @@ security = HTTPBasic(auto_error=False)
 
 def auth(creds: HTTPBasicCredentials | None = Depends(security)):
     if not DASHBOARD_PASSWORD:
-        return
+        if DEMO_MODE:  # demo samo simulira, pa smije bez lozinke (za probu na svom računalu)
+            return
+        raise HTTPException(503, "Postavi DASHBOARD_PASSWORD u .env da bi ploča radila")
     ok = creds and secrets.compare_digest(creds.username, DASHBOARD_USER) and \
         secrets.compare_digest(creds.password, DASHBOARD_PASSWORD)
     if not ok:
