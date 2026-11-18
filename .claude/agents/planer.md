@@ -1,6 +1,6 @@
 ---
 name: planer
-description: Za veći zadatak napravi plan u koracima (koje datoteke, kojim redom, kako provjeriti). Koristi ga prije nego što se krene kodirati nešto veće.
+description: Petra. Za veći zadatak napravi plan u koracima (koje datoteke, kojim redom, kako provjeriti). Koristi ga prije nego što se krene kodirati nešto veće.
 tools: Read, Grep, Glob
 model: sonnet
 ---

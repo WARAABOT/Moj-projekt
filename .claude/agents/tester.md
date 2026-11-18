@@ -1,6 +1,6 @@
 ---
 name: tester
-description: Piše i pokreće testove za zadanu promjenu i javlja što prolazi, a što ne. Koristi ga nakon što se napiše novi kod.
+description: Tea. Piše i pokreće testove za zadanu promjenu i javlja što prolazi, a što ne. Koristi ga nakon što se napiše novi kod.
 tools: Read, Grep, Glob, Bash, Edit, Write
 model: sonnet
 ---

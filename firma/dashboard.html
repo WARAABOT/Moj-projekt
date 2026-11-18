@@ -1,0 +1,242 @@
+<title>Jarvis HQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: kontrolna soba — tim gore kao "stol zaposlenika", ispod ploča zadataka po projektu, desno detalj zadatka s komentarima */
+:root {
+  --bg: #F3F5F8; --panel: #FFFFFF; --ink: #15202C; --muted: #5B6878; --line: #DCE2EA;
+  --accent: #2B50D6; --accent-soft: #E6ECFD;
+  --s-novo: #6B7787; --s-radi: #C47A00; --s-pregled: #7A4CD6; --s-gotovo: #1F8A4C;
+  --f-display: "Space Grotesk", system-ui, sans-serif;
+  --f-body: "Inter", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F151C; --panel: #18212B; --ink: #E6ECF3; --muted: #93A1B2; --line: #2A3542;
+  --accent: #82A0FF; --accent-soft: #1F2B4A;
+  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F151C; --panel: #18212B; --ink: #E6ECF3; --muted: #93A1B2; --line: #2A3542;
+  --accent: #82A0FF; --accent-soft: #1F2B4A;
+  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance }
+h1 { font-size: 28px; letter-spacing: -.01em }
+h2 { font-size: 18px }
+.eyebrow { font: 600 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+header { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; justify-content: space-between }
+.stats { display: flex; gap: 20px; flex-wrap: wrap; font-family: var(--f-mono); font-variant-numeric: tabular-nums }
+.stats b { display: block; font-size: 22px; font-family: var(--f-display) }
+.note { color: var(--muted); font-size: 13px }
+.note[data-warn] { color: var(--s-radi) }
+
+/* Tim */
+.team { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px }
+.bot { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 6px; min-width: 0 }
+.bot.boss { grid-column: 1 / -1; border-color: var(--accent); background: linear-gradient(0deg, var(--panel), var(--panel)) padding-box }
+.bot .top { display: flex; align-items: center; gap: 10px }
+.ava { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--f-display); background: var(--accent-soft); color: var(--accent); flex: none }
+.bot .name { font: 600 15px var(--f-display) }
+.bot .role { color: var(--muted); font-size: 12px }
+.bot .task { font-size: 13px; overflow-wrap: anywhere }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center }
+.chip { font: 500 11px var(--f-mono); padding: 2px 8px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted) }
+.pill { font: 600 11px var(--f-mono); padding: 2px 8px; border-radius: 99px; color: var(--panel); background: var(--s-novo) }
+.pill[data-s="radi"] { background: var(--s-radi) } .pill[data-s="pregled"], .pill[data-s="čeka"] { background: var(--s-pregled) } .pill[data-s="gotovo"] { background: var(--s-gotovo) }
+
+/* Projekti + ploča */
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap }
+button { font: 500 13px var(--f-body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer }
+button:hover { border-color: var(--accent) }
+button[aria-pressed="true"], button.primary { background: var(--accent); color: var(--panel); border-color: var(--accent) }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.projdesc { color: var(--muted); font-size: 13px }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr) } }
+.board { display: grid; grid-template-columns: repeat(4, minmax(170px, 1fr)); gap: 10px; overflow-x: auto; padding-bottom: 4px }
+.col { display: grid; gap: 8px; align-content: start; min-width: 0 }
+.col h3 { font-size: 13px; display: flex; gap: 8px; align-items: center; border-top: 3px solid var(--s-novo); padding-top: 6px }
+.col[data-s="radi"] h3 { border-color: var(--s-radi) } .col[data-s="pregled"] h3 { border-color: var(--s-pregled) } .col[data-s="gotovo"] h3 { border-color: var(--s-gotovo) }
+.col h3 span { font: 400 12px var(--f-mono); color: var(--muted) }
+.card { text-align: left; display: grid; gap: 4px; width: 100%; padding: 10px; border-radius: 8px }
+.card[aria-current="true"] { outline: 2px solid var(--accent) }
+.card .t { font-weight: 600; overflow-wrap: anywhere }
+.card .m { color: var(--muted); font-size: 12px; display: flex; gap: 8px; flex-wrap: wrap }
+.empty { color: var(--muted); font-size: 13px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px }
+
+aside { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 12px; min-width: 0 }
+.thread { display: grid; gap: 10px; max-height: 420px; overflow-y: auto }
+.msg { display: grid; gap: 2px }
+.msg .who { font: 600 12px var(--f-mono) } .msg .who time { font-weight: 400; color: var(--muted); margin-left: 6px }
+.msg p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere }
+form { display: grid; gap: 8px }
+label { font-size: 12px; color: var(--muted); display: grid; gap: 4px }
+input, select, textarea { font: 14px var(--f-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; width: 100% }
+textarea { min-height: 70px; resize: vertical }
+.row { display: flex; gap: 8px; flex-wrap: wrap } .row > * { flex: 1 1 140px }
+@media (prefers-reduced-motion: no-preference) { button { transition: border-color .15s } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">AI firma · direktor Jarvis</div>
+      <h1>Jarvis HQ</h1>
+      <div class="note" id="status">Učitavam podatke…</div>
+    </div>
+    <div class="stats">
+      <div><b id="st-bots">–</b>zaposlenih</div>
+      <div><b id="st-proj">–</b>projekata</div>
+      <div><b id="st-open">–</b>otvorenih zadataka</div>
+      <div><b id="st-done">–</b>gotovo</div>
+    </div>
+  </header>
+
+  <section aria-labelledby="h-team" style="display:grid;gap:12px">
+    <h2 id="h-team">Tim</h2>
+    <div class="team" id="team"><div class="empty">Tim se pojavi ovdje kad ga Jarvis upiše.</div></div>
+  </section>
+
+  <section aria-labelledby="h-proj" style="display:grid;gap:12px">
+    <div class="bar">
+      <h2 id="h-proj">Projekti</h2>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div class="projdesc" id="projdesc"></div>
+    <div class="main">
+      <div class="board" id="board"></div>
+      <aside>
+        <div id="detail"><div class="eyebrow">Zadatak</div><p class="note">Klikni zadatak da vidiš tko ga radi i komentare.</p></div>
+        <form id="f-task">
+          <div class="eyebrow">Nova naredba Jarvisu</div>
+          <label>Što treba napraviti<textarea id="t-text" required placeholder="npr. Napravi scenarij za video o misijama u GTA 6"></textarea></label>
+          <div class="row">
+            <label>Projekt<select id="t-proj"></select></label>
+            <label>Novi projekt (ako treba)<input id="t-newproj" placeholder="ime projekta"></label>
+          </div>
+          <button class="primary" type="submit">Pošalji naredbu</button>
+          <div class="note" id="t-msg"></div>
+        </form>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script>
+const S = { bots: [], projekti: [], zadaci: [], komentari: [], proj: "sve", sel: null };
+const STAT = [["novo","Novo"],["radi","Radi"],["pregled","Na pregledu"],["gotovo","Gotovo"]];
+const $ = id => document.getElementById(id);
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k,v] of Object.entries(attrs)) k === "text" ? e.textContent = v : e.setAttribute(k, v); e.append(...kids); return e; };
+const when = iso => { try { return new Date(iso).toLocaleString("hr-HR", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
+const botName = id => id === "ti" ? "Ti" : (S.bots.find(b => b.id === id)?.ime || id || "—");
+let db = null, canWrite = true;
+
+function render() {
+  const bots = [...S.bots].sort((a, b) => (b.sef ? 1 : 0) - (a.sef ? 1 : 0) || (a.red ?? 99) - (b.red ?? 99));
+  $("st-bots").textContent = S.bots.length;
+  $("st-proj").textContent = S.projekti.length;
+  $("st-open").textContent = S.zadaci.filter(z => z.status !== "gotovo").length;
+  $("st-done").textContent = S.zadaci.filter(z => z.status === "gotovo").length;
+
+  const team = $("team"); team.replaceChildren();
+  if (!bots.length) team.append(el("div", { class: "empty", text: "Tim se pojavi ovdje kad ga Jarvis upiše." }));
+  for (const b of bots) {
+    const open = S.zadaci.filter(z => z.bot === b.id && z.status !== "gotovo").length;
+    team.append(el("div", { class: "bot" + (b.sef ? " boss" : "") },
+      el("div", { class: "top" }, el("div", { class: "ava", text: (b.ime || "?")[0] }),
+        el("div", {}, el("div", { class: "name", text: b.ime || b.id }), el("div", { class: "role", text: b.uloga || "" }))),
+      el("div", { class: "chips" }, el("span", { class: "pill", "data-s": b.status || "slobodan", text: b.status || "slobodan" }),
+        el("span", { class: "chip", text: b.model || "" }), el("span", { class: "chip", text: open + " otvoreno" })),
+      el("div", { class: "task", text: b.zadatak ? "▸ " + b.zadatak : "Nema posla trenutno." })));
+  }
+
+  const tabs = $("tabs"); tabs.replaceChildren();
+  for (const p of [{ id: "sve", ime: "Svi" }, ...S.projekti]) {
+    const btn = el("button", { type: "button", "aria-pressed": String(S.proj === p.id), text: p.ime });
+    btn.onclick = () => { S.proj = p.id; render(); };
+    tabs.append(btn);
+  }
+  const cur = S.projekti.find(p => p.id === S.proj);
+  $("projdesc").textContent = cur ? (cur.opis || "") + (cur.status ? " · status: " + cur.status : "") : "Svi zadaci svih projekata.";
+
+  const sel = $("t-proj"), keep = sel.value; sel.replaceChildren(el("option", { value: "", text: "— bez projekta —" }));
+  for (const p of S.projekti) sel.append(el("option", { value: p.id, text: p.ime }));
+  sel.value = keep || (cur ? cur.id : "");
+
+  const list = S.zadaci.filter(z => S.proj === "sve" || z.projekt === S.proj).sort((a, b) => (b.azurirano || "").localeCompare(a.azurirano || ""));
+  const board = $("board"); board.replaceChildren();
+  for (const [k, label] of STAT) {
+    const items = list.filter(z => (z.status || "novo") === k);
+    const col = el("div", { class: "col", "data-s": k }, el("h3", {}, label, el("span", { text: String(items.length) })));
+    if (!items.length) col.append(el("div", { class: "empty", text: "Ništa." }));
+    for (const z of items) {
+      const n = S.komentari.filter(c => c.zadatak === z.id).length;
+      const c = el("button", { class: "card", type: "button", "aria-current": String(S.sel === z.id) },
+        el("div", { class: "t", text: z.naslov }),
+        el("div", { class: "m" }, el("span", { text: botName(z.bot) }), el("span", { text: n + " kom." }), el("span", { text: when(z.azurirano) })));
+      c.onclick = () => { S.sel = z.id; render(); };
+      col.append(c);
+    }
+    board.append(col);
+  }
+  renderDetail();
+}
+
+function renderDetail() {
+  const d = $("detail"), z = S.zadaci.find(x => x.id === S.sel);
+  if (!z) return;
+  const thread = el("div", { class: "thread" });
+  const coms = S.komentari.filter(c => c.zadatak === z.id).sort((a, b) => (a.vrijeme || "").localeCompare(b.vrijeme || ""));
+  if (!coms.length) thread.append(el("p", { class: "note", text: "Još nema komentara." }));
+  for (const c of coms) thread.append(el("div", { class: "msg" }, el("div", { class: "who" }, botName(c.autor), el("time", { text: when(c.vrijeme) })), el("p", { text: c.tekst })));
+  const f = el("form", {}, el("label", {}, "Tvoj komentar", el("textarea", { id: "c-text", required: "" })), el("button", { class: "primary", type: "submit", text: "Komentiraj" }));
+  f.onsubmit = async e => {
+    e.preventDefault(); const t = f.querySelector("textarea").value.trim(); if (!t || !db) return;
+    try { await db.collection("komentari").add({ zadatak: z.id, autor: "ti", tekst: t, vrijeme: new Date().toISOString() }); }
+    catch (err) { f.append(el("div", { class: "note", "data-warn": "", text: "Komentar nije spremljen: " + (err.message || err.code) })); }
+  };
+  const p = S.projekti.find(x => x.id === z.projekt);
+  d.replaceChildren(el("div", { class: "eyebrow", text: "Zadatak" }), el("h3", { text: z.naslov }),
+    el("div", { class: "chips" }, el("span", { class: "pill", "data-s": z.status || "novo", text: z.status || "novo" }),
+      el("span", { class: "chip", text: botName(z.bot) }), p ? el("span", { class: "chip", text: p.ime }) : ""),
+    z.opis ? el("p", { text: z.opis, style: "white-space:pre-wrap;margin:0" }) : "", thread, canWrite ? f : "");
+}
+
+$("f-task").onsubmit = async e => {
+  e.preventDefault(); const msg = $("t-msg");
+  const text = $("t-text").value.trim(); if (!text) return;
+  if (!db) { msg.textContent = "Spremanje trenutno ne radi."; return; }
+  try {
+    let projekt = $("t-proj").value; const np = $("t-newproj").value.trim();
+    if (np) { const r = await db.collection("projekti").add({ ime: np, opis: "", status: "aktivan", kreirano: new Date().toISOString() }); projekt = r.id; }
+    const now = new Date().toISOString();
+    await db.collection("zadaci").add({ naslov: text.split("\n")[0].slice(0, 120), opis: text, projekt, bot: "jarvis", status: "novo", autor: "ti", kreirano: now, azurirano: now });
+    $("t-text").value = ""; $("t-newproj").value = "";
+    msg.textContent = "Poslano. Jarvis je preuzima kad mu u Claude Codeu kažeš: \"pogledaj nove naredbe\".";
+  } catch (err) { msg.textContent = "Nije spremljeno: " + (err.message || err.code); }
+};
+
+render();
+(async () => {
+  db = await claude.use("db");
+  const status = $("status");
+  if (!db) { status.textContent = "Podaci nisu dostupni u ovom prikazu (prijavi se u claude.ai)."; status.dataset.warn = ""; canWrite = false; return; }
+  const user = await claude.use("user");
+  if (user && (await user.can("data.write")) === false) { canWrite = false; $("f-task").hidden = true; }
+  let pending = 4;
+  const timer = setTimeout(() => { status.textContent = "Podaci se još ne mogu dohvatiti, možda nisu svježi."; status.dataset.warn = ""; }, 10000);
+  for (const name of ["bots", "projekti", "zadaci", "komentari"]) {
+    let first = true;
+    db.collection(name).onSnapshot(snap => {
+      S[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (first && !snap.metadata.fromCache) { first = false; if (--pending === 0) { clearTimeout(timer); status.textContent = "Uživo · ažurira se samo"; delete status.dataset.warn; } }
+      render();
+    }, err => { clearTimeout(timer); status.textContent = "Greška pri čitanju: " + err.code; status.dataset.warn = ""; });
+  }
+})();
+</script>

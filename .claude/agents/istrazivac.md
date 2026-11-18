@@ -1,6 +1,6 @@
 ---
 name: istrazivac
-description: Brzo i jeftino pretražuje kod i dokumentaciju i vraća samo sažetak (gdje je što, kako radi). Koristi ga prije većih promjena umjesto da glavni agent sam čita puno datoteka.
+description: Ivo. Brzo i jeftino pretražuje kod i dokumentaciju i vraća samo sažetak (gdje je što, kako radi). Koristi ga prije većih promjena umjesto da glavni agent sam čita puno datoteka.
 tools: Read, Grep, Glob, Bash
 model: haiku
 ---

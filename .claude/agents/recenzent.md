@@ -1,6 +1,6 @@
 ---
 name: recenzent
-description: Pregledava promjene (git diff) i traži greške, sigurnosne propuste i nepotrebno kompliciran kod. Koristi ga prije commita ili pull requesta.
+description: Roko. Pregledava promjene (git diff) i traži greške, sigurnosne propuste i nepotrebno kompliciran kod. Koristi ga prije commita ili pull requesta.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---
