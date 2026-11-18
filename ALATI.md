@@ -171,3 +171,27 @@ Pazi:
 | ➖ | `feature-dev` | Isto što i Superpowers + tvoji pod-agenti (planer, istrazivac) |
 
 Superpowers je ostao kao glavni način rada, a tvoji pod-agenti su ostali kao "zaposlenici".
+
+---
+
+# Peta runda: AI firma (Jarvis HQ)
+
+Dashboard: https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98 (kod u `firma/`). Radi na mobitelu, besplatno, preko pretplate.
+
+## Iz tvojih TikTok videa (16.11.)
+| Video | Alat | Stanje |
+|---|---|---|
+| @george.automates, "Advisor" | `/advisor opus` u Claude Codeu: Sonnet radi, Opus savjetuje samo kod teških odluka. Štedi limit. | ➕ upiši jednom `/advisor opus` (treba Claude Code 2.1.287+, ovdje je 2.1.327) |
+| @alex.carter.crypto, "JARVIS" | glavni agent koji vodi tim | ✅ napravljeno: Jarvis + 10 botova na dashboardu |
+| @markopejic.ai, "klonira aplikaciju" | replica skill `/clone-website` | ✅ instaliran u sesiji "Replica skill i Spotify" (grana `ccr-1808439b-goisxy`) |
+
+## Gotovi alati s interneta (provjereno 18.11.2026.)
+| Za što | Alat | Cijena | Napomena |
+|---|---|---|---|
+| Gotovi "zaposlenici" | [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents) (100+ agenata), [wshobson/agents](https://github.com/wshobson/agents) | besplatno | Uzmi samo one koji trebaju: svaki instalirani agent troši tokene u svakoj poruci |
+| Službeni tim agenata | [Claude Code agent teams](https://code.claude.com/docs/en/agent-teams) (lead + teammates) | pretplata | Eksperimentalno; svaki član je cijela sesija, pa troši puno limita |
+| Pixel ured na računalu | [Pixel Agents](https://github.com/pablodelucca/pixel-agents) (VS Code), [Pixel Agent Desk](https://github.com/Mgpixelart/pixel-agent-desk), [PixelOffice](https://github.com/KalebKE/PixelOffice) | besplatno | Prikazuju Claude Code sesije na tvom računalu kao likove u uredu |
+| 3D ured | [Claw3D](https://github.com/iamlukethedev/Claw3D), [The Delegation](https://github.com/arturitu/the-delegation), [AI Office](https://github.com/Gaurav2693/ai-office) | besplatno | Rade lokalno; Claw3D je za OpenClaw, ne izravno za Claude Code |
+| Kanban za agente | [Vibe Kanban](https://github.com/BloopAI/vibe-kanban) | besplatno | Tvrtka ugašena 2026., dalje ga održava zajednica |
+| 3D modeli | [Kenney Furniture Kit](https://kenney.nl/assets/furniture-kit) | besplatno (CC0) | Namještaj za 3D ured |
+| ❌ ne | ChatDev, CrewAI, MetaGPT | traže plaćeni API | Ne uklapa se u "samo pretplata" |
