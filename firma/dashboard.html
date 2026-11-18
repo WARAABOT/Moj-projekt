@@ -1,13 +1,13 @@
 <title>Jarvis HQ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 /* Layout: kontrolna soba — 3D ured na vrhu, ispod chat s Jarvisom lijevo i projekti desno, pa izvještaj i tim */
 :root {
   --bg: #F3F5F8; --panel: #FFFFFF; --ink: #15202C; --muted: #5B6878; --line: #DCE2EA;
   --accent: #2B50D6; --accent-soft: #E6ECFD; --floor: #E4E9F0; --desk: #C9B79C;
-  --s-novo: #6B7787; --s-radi: #C47A00; --s-pregled: #7A4CD6; --s-gotovo: #1F8A4C; --s-bad: #C0392B;
+  --s-novo: #6B7787; --s-radi: #C47A00; --s-pregled: #7A4CD6; --s-gotovo: #1F8A4C; --s-bad: #C0392B; --brain: #14161B;
   --f-display: "Space Grotesk", system-ui, sans-serif;
   --f-body: "Inter", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
@@ -15,11 +15,11 @@
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0F151C; --panel: #18212B; --ink: #E6ECF3; --muted: #93A1B2; --line: #2A3542;
   --accent: #82A0FF; --accent-soft: #1F2B4A; --floor: #1B2530; --desk: #6E5E48;
-  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; --s-bad: #FF7A6B; color-scheme: dark } }
+  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; --s-bad: #FF7A6B; --brain: #05070A; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0F151C; --panel: #18212B; --ink: #E6ECF3; --muted: #93A1B2; --line: #2A3542;
   --accent: #82A0FF; --accent-soft: #1F2B4A; --floor: #1B2530; --desk: #6E5E48;
-  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; --s-bad: #FF7A6B; color-scheme: dark }
+  --s-novo: #9AA6B6; --s-radi: #F0A93B; --s-pregled: #B593FF; --s-gotovo: #4CC27F; --s-bad: #FF7A6B; --brain: #05070A; color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--f-body);
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
@@ -124,13 +124,52 @@ textarea { min-height: 60px; resize: vertical }
 .row { display: flex; gap: 8px; flex-wrap: wrap } .row > * { flex: 1 1 140px }
 a { color: var(--accent) }
 @media (prefers-reduced-motion: no-preference) { button { transition: border-color .15s } }
+
+/* Organigram (stil: šef → mozak → odjeli, kao na TikTok predlošku) */
+.headline { font: 800 clamp(26px, 5vw, 44px)/1.05 var(--f-body); letter-spacing: -.02em; text-transform: uppercase; margin: 4px 0 0; text-wrap: balance }
+.org { display: grid; gap: 0; justify-items: center }
+.boss-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center }
+.mini { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 8px 12px; font: 600 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); display: grid; gap: 6px; justify-items: center }
+.mini b { font: 700 14px var(--f-display); color: var(--ink); text-transform: none; letter-spacing: 0 }
+.wire { width: 2px; height: 26px; background: repeating-linear-gradient(var(--muted) 0 4px, transparent 4px 8px) }
+.brain { background: var(--brain); color: #fff; border-radius: 14px; padding: 14px 22px; display: grid; gap: 10px; justify-items: center; box-shadow: 0 10px 30px -12px rgba(0,0,0,.45); max-width: 100% }
+.brain h3 { font: 700 22px var(--f-display); color: #fff }
+.brain .chips span { font: 500 11px var(--f-mono); padding: 4px 8px; border-radius: 6px; background: rgba(255,255,255,.12); color: #fff }
+.depts { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 14px; border-top: 2px dashed var(--line); padding-top: 18px; margin-top: 0 }
+.dept { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; box-shadow: 0 6px 20px -16px rgba(0,0,0,.4) }
+.dept header { display: grid; gap: 2px; align-items: start; justify-content: stretch }
+.sys { text-transform: none; letter-spacing: 0; color: var(--ink); font: 500 13px var(--f-body) }
+.dept h3 { font: 800 22px var(--f-body); letter-spacing: -.01em; display: flex; justify-content: space-between; gap: 8px; align-items: baseline }
+.dept h3 small { font: 500 12px var(--f-mono); color: var(--accent) }
+.dept .sub { font-size: 12px; color: var(--muted) }
+.agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 2px 14px }
+.agent { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-radius: 8px; border-bottom: 1px solid var(--line); min-width: 0; font-size: 14px; font-weight: 500 }
+.agent[data-s="radi"] { outline: 2px solid var(--accent); background: var(--accent-soft); border-color: transparent }
+.agent .lg { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font: 700 11px var(--f-display); color: #fff; flex: none }
+.agent .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.agent .nm em { font-style: normal; color: var(--muted); font-weight: 400 }
+.agent .st { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--line); flex: none }
+.agent[data-s="radi"] .st { background: var(--s-radi) } .agent[data-s="pregled"] .st { background: var(--s-pregled) }
+.agent.lead .nm { font-weight: 700 }
+.ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px }
+.term { background: var(--brain); color: #E8ECF2; border-radius: 14px; padding: 14px 16px; font: 13px/1.7 var(--f-mono); display: grid; gap: 8px; min-width: 0; overflow-x: auto }
+.term .dots { display: flex; gap: 6px } .term .dots i { width: 11px; height: 11px; border-radius: 50%; display: block }
+.term pre { margin: 0; white-space: pre-wrap; font: inherit }
+.term .k { color: #9AA6B6 }
+.handoff { display: grid; gap: 8px; align-content: start }
+.handoff .item { display: flex; gap: 8px; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 6px 0; min-width: 0 }
+.handoff .item span { min-width: 0; overflow-wrap: anywhere }
+.systems { display: flex; flex-wrap: wrap; gap: 8px }
+.sys { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; background: var(--panel) }
+.sys i { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font: 700 10px var(--f-display); color: #fff; font-style: normal }
+.sys[data-off] { opacity: .5 }
 </style>
 
 <div class="wrap">
   <header>
     <div>
-      <div class="eyebrow">AI firma · direktor Jarvis</div>
       <h1><span id="firm">Jarvis HQ</span> <button type="button" class="small" id="rename">Preimenuj</button></h1>
+      <p class="headline" id="headline">AI agenti vode tvoju firmu</p>
       <div class="note" id="status">Učitavam podatke…</div>
     </div>
     <div class="stats">
@@ -145,13 +184,39 @@ a { color: var(--accent) }
     </div>
   </header>
 
-  <section aria-labelledby="h-office">
-    <div class="bar">
-      <h2 id="h-office">Ured</h2>
-      <div class="legend"><span><i style="background:var(--s-radi)"></i>radi</span><span><i style="background:var(--s-pregled)"></i>čeka tvoj pregled</span><span><i style="background:var(--s-novo)"></i>slobodan</span><span>Povuci prstom ili mišem za okretanje</span></div>
+  <section aria-label="Organigram firme">
+    <div class="org">
+      <div class="boss-row">
+        <div class="mini">Šef (ti)<b>Ti zapovijedaš</b></div>
+        <div class="mini">Sustavi<div class="systems" id="systems"></div></div>
+      </div>
+      <div class="wire"></div>
+      <div class="brain">
+        <div class="eyebrow" style="color:#9AA6B6">Mozak · AI CEO</div>
+        <h3 id="brain-name">Jarvis</h3>
+        <div class="chips"><span>tjedni ciljevi</span><span>strategija firme</span><span>dijeli posao</span><span>javlja tebi</span></div>
+      </div>
+      <div class="wire"></div>
+      <div class="depts" id="depts"></div>
     </div>
-    <div class="office" id="office"><canvas id="cv" aria-label="3D ured s botovima"></canvas><div class="labels" id="labels"></div></div>
   </section>
+
+  <section class="ops" aria-label="Stanje firme">
+    <div class="term" aria-label="Stanje firme jutros">
+      <div class="dots"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></div>
+      <pre id="term"></pre>
+    </div>
+    <div class="panel handoff">
+      <div class="eyebrow">Predaja tebi · čeka šefa</div>
+      <div id="handoff"></div>
+    </div>
+  </section>
+
+  <details class="panel" id="office-box">
+    <summary>3D ured · gledaj botove kako rade</summary>
+    <div class="legend" style="margin:10px 0"><span><i style="background:var(--s-radi)"></i>radi</span><span><i style="background:var(--s-pregled)"></i>čeka tvoj pregled</span><span><i style="background:var(--s-novo)"></i>slobodan</span><span>Povuci prstom ili mišem za okretanje</span></div>
+    <div class="office" id="office"><canvas id="cv" aria-label="3D ured s botovima"></canvas><div class="labels" id="labels"></div></div>
+  </details>
 
   <div class="main">
     <section class="panel chat" aria-labelledby="h-chat">
@@ -194,14 +259,15 @@ a { color: var(--accent) }
   </section>
 
   <section aria-labelledby="h-team">
-    <h2 id="h-team">Tim</h2>
-    <div class="team" id="team"></div>
+    <h2 id="h-team">Kadrovska · zapošljavanje i otpuštanje</h2>
+    <details class="panel"><summary>Svi zaposlenici (kartice)</summary><div class="team" id="team" style="margin-top:10px"></div></details>
     <details class="panel" id="hire-box">
       <summary>Zaposli novog bota</summary>
       <form id="f-hire" style="margin-top:10px">
         <div class="row">
           <label>Ime<input id="h-ime" required placeholder="npr. Luka"></label>
           <label>Uloga<input id="h-uloga" required placeholder="npr. Montažer videa"></label>
+          <label>Odjel<select id="h-odjel"></select></label>
           <label>Model<select id="h-model"><option value="haiku">haiku (najjeftiniji)</option><option value="sonnet">sonnet (pametniji)</option></select></label>
         </div>
         <label>Upute: što radi i kako<textarea id="h-upute" required></textarea></label>
@@ -217,6 +283,14 @@ a { color: var(--accent) }
 const ENV = "env_01WUPL7tTypKxo6D8SqMKKo8", REPO = "https://github.com/WARAABOT/Moj-projekt", ME = "https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98";
 const S = { bots: [], projekti: [], zadaci: [], komentari: [], postavke: [], poruke: [], proj: null, sel: null, confirm: [] };
 const STAT = [["novo","Novo"],["radi","Radi"],["pregled","Na pregledu"],["gotovo","Gotovo"]];
+const DEPTS = [
+  { id: "cmo", ime: "AI CMO", opis: "Sadržaj i rast · kanali rastu i dok ti spavaš" },
+  { id: "cto", ime: "AI CTO", opis: "Razvoj i alati · ideja postaje program" },
+  { id: "coo", ime: "AI COO", opis: "Operacije · projekti teku, ništa ne zapne" },
+  { id: "cro", ime: "AI CRO", opis: "Prodaja i zarada · pažnja postaje novac" },
+  { id: "cfo", ime: "AI CFO", opis: "Financije i limiti · ništa ne košta više nego što treba" },
+];
+const SYSTEMS = [["GitHub", "GH", "#24292F", true], ["Baza firme", "DB", "#2B50D6", true], ["Claude Code", "CC", "#D97757", true], ["YouTube", "YT", "#FF0033", false], ["TikTok", "TT", "#111111", false], ["Instagram", "IG", "#C13584", false], ["Pexels", "PX", "#05A081", false]];
 const $ = id => document.getElementById(id);
 const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); for (const [k,v] of Object.entries(attrs)) k === "text" ? e.textContent = v : e.setAttribute(k, v); e.append(...kids.filter(k => k !== "" && k != null)); return e; };
 const btn = (text, fn, cls = "") => { const b = el("button", { type: "button", class: cls, text }); b.onclick = fn; return b; };
@@ -226,7 +300,9 @@ const hue = s => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCod
 const projColor = id => id ? `hsl(${hue(id)} 65% 52%)` : "var(--s-novo)";
 const botColor = id => `hsl(${hue(id + "x")} 55% 48%)`;
 const botName = id => id === "ti" ? "Ti" : (S.bots.find(b => b.id === id)?.ime || id || "—");
-const active = () => S.bots.filter(b => b.aktivan !== false).sort((a, b) => (b.sef ? 1 : 0) - (a.sef ? 1 : 0) || (a.red ?? 99) - (b.red ?? 99));
+const deptIx = b => b.sef ? -1 : (i => i < 0 ? 99 : i)(DEPTS.findIndex(d => d.id === b.odjel));
+const active = () => S.bots.filter(b => b.aktivan !== false).sort((a, b) => deptIx(a) - deptIx(b) || (b.voditelj ? 1 : 0) - (a.voditelj ? 1 : 0) || (a.red ?? 99) - (b.red ?? 99));
+const botState = id => S.zadaci.some(t => t.bot === id && t.status === "radi") ? "radi" : S.zadaci.some(t => t.bot === id && t.status === "pregled") ? "pregled" : "slobodan";
 const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "x";
 const shift = () => S.postavke.find(p => p.id === "smjena") || {};
 let db = null, mcp = null, sample = null, isOwner = false, canStart = false;
@@ -250,10 +326,10 @@ const A = {
     const t = now(), r = await db.collection("zadaci").add({ naslov: String(naslov).slice(0, 120), opis: String(opis || naslov), projekt, bot, status: "novo", autor: "ti", kreirano: t, azurirano: t });
     return { id: r.id };
   },
-  async zaposli({ ime, uloga, upute, model = "haiku" }) {
+  async zaposli({ ime, uloga, upute, model = "haiku", odjel = "coo" }) {
     ime = String(ime || "").trim(); if (!ime) throw new Error("Bot treba ime.");
     let id = slug(ime).replace(/-/g, ""); if (S.bots.some(b => b.id === id)) id += Date.now() % 1000;
-    await db.doc("bots/" + id).set({ ime, uloga: String(uloga || ""), upute: String(upute || ""), model: model === "sonnet" ? "sonnet" : "haiku", status: "slobodan", zadatak: "", aktivan: true, red: S.bots.length });
+    await db.doc("bots/" + id).set({ ime, uloga: String(uloga || ""), upute: String(upute || ""), model: model === "sonnet" ? "sonnet" : "haiku", odjel: DEPTS.some(d => d.id === odjel) ? odjel : "coo", status: "slobodan", zadatak: "", aktivan: true, red: S.bots.length });
     return { id };
   },
   async otpusti({ bot }) {
@@ -289,7 +365,7 @@ function findSessionId(v) {
 const TOOLS = [
   { name: "novi_projekt", description: "Otvara novi projekt. svakiDan = posao koji noćna smjena radi jednom dnevno (prazno ako ne treba). Vraća {id}.", inputSchema: { type: "object", properties: { ime: { type: "string" }, opis: { type: "string" }, svakiDan: { type: "string" } }, required: ["ime"] }, execute: i => A.noviProjekt(i) },
   { name: "novi_zadatak", description: "Dodaje zadatak u projekt i dodjeljuje ga botu (id bota; 'jarvis' ako nisi siguran). Smjena ga preuzme sama. Vraća {id}.", inputSchema: { type: "object", properties: { projekt: { type: "string" }, naslov: { type: "string" }, opis: { type: "string" }, bot: { type: "string" } }, required: ["projekt", "naslov", "bot"] }, execute: i => A.noviZadatak(i) },
-  { name: "zaposli", description: "Zapošljava novog bota. model: haiku (jeftin) ili sonnet.", inputSchema: { type: "object", properties: { ime: { type: "string" }, uloga: { type: "string" }, upute: { type: "string" }, model: { type: "string", enum: ["haiku", "sonnet"] } }, required: ["ime", "uloga", "upute"] }, execute: i => A.zaposli(i) },
+  { name: "zaposli", description: "Zapošljava novog bota u odjel (cmo sadržaj i rast, cto razvoj, coo operacije, cro prodaja, cfo financije). model: haiku (jeftin) ili sonnet.", inputSchema: { type: "object", properties: { ime: { type: "string" }, uloga: { type: "string" }, upute: { type: "string" }, odjel: { type: "string", enum: ["cmo", "cto", "coo", "cro", "cfo"] }, model: { type: "string", enum: ["haiku", "sonnet"] } }, required: ["ime", "uloga", "upute", "odjel"] }, execute: i => A.zaposli(i) },
   { name: "otpusti", description: "Otpušta bota po id-u.", inputSchema: { type: "object", properties: { bot: { type: "string" } }, required: ["bot"] }, execute: i => A.otpusti(i) },
   { name: "smjena", description: "Uključuje ili gasi automatske smjene (rad svaka 4 sata, i noću).", inputSchema: { type: "object", properties: { ukljuceno: { type: "boolean" } }, required: ["ukljuceno"] }, execute: i => A.smjena(i) },
   { name: "pokreni_odmah", description: "Predlaže vlasniku da odmah pokrene rad na zadatku: u chatu mu se pojavi gumb za potvrdu. Koristi samo kad vlasnik traži da se krene odmah.", inputSchema: { type: "object", properties: { zadatak: { type: "string" } }, required: ["zadatak"] }, execute: i => {
@@ -300,7 +376,7 @@ function firmState() {
   return JSON.stringify({
     firma: S.postavke.find(p => p.id === "firma")?.ime || "Jarvis HQ",
     smjena: { ukljuceno: !!shift().ukljuceno, zadnja: shift().zadnjaProvjera || null },
-    botovi: active().map(b => ({ id: b.id, ime: b.ime, uloga: b.uloga, model: b.model, status: b.status })),
+    botovi: active().map(b => ({ id: b.id, ime: b.ime, uloga: b.uloga, odjel: b.sef ? "ceo" : b.odjel, voditelj: !!b.voditelj || undefined, model: b.model, status: botState(b.id) })),
     projekti: S.projekti.map(p => ({ id: p.id, ime: p.ime, status: p.status, svakiDan: p.svakiDan || undefined })),
     otvoreniZadaci: S.zadaci.filter(z => z.status !== "gotovo").slice(0, 40).map(z => ({ id: z.id, projekt: z.projekt, naslov: z.naslov, bot: z.bot, status: z.status })),
   });
@@ -370,7 +446,7 @@ function initOffice() {
   O.floor.rotation.x = -Math.PI / 2; O.scene.add(O.floor);
   O.group = new THREE.Group(); O.scene.add(O.group);
   O.ok = true;
-  new ResizeObserver(() => { const w = wrap.clientWidth, h = wrap.clientHeight; O.r.setSize(w, h, false); O.cam.aspect = w / h; O.cam.updateProjectionMatrix(); drawOnce(); }).observe(wrap);
+  new ResizeObserver(() => { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; O.r.setSize(w, h, false); O.cam.aspect = w / h; O.cam.updateProjectionMatrix(); drawOnce(); }).observe(wrap);
   let down = null;
   $("cv").addEventListener("pointerdown", e => { down = e.clientX; $("cv").setPointerCapture(e.pointerId); });
   $("cv").addEventListener("pointermove", e => { if (down != null) { O.drag += (e.clientX - down) * 0.008; down = e.clientX; drawOnce(); } });
@@ -551,13 +627,56 @@ function renderTeam() {
   const gone = S.bots.filter(b => b.aktivan === false);
   $("gone-box").hidden = !gone.length; $("gone").replaceChildren(...gone.map(botCard));
 }
-function render() { renderHeader(); renderReport(); renderProjects(); renderTeam(); renderChat(); syncOffice(); }
+function renderOrg() {
+  const act = active();
+  $("headline").textContent = act.length + " AI agenata vodi tvoju firmu";
+  $("brain-name").textContent = act.find(b => b.sef)?.ime || "Jarvis";
+  $("systems").replaceChildren(...SYSTEMS.map(([n, ab, c, on]) => el("span", { class: "sys", title: on ? "povezano" : "još nije povezano", ...(on ? {} : { "data-off": "" }) }, el("i", { text: ab, style: "background:" + c }), n)));
+  $("depts").replaceChildren(...DEPTS.map(d => {
+    const team = act.filter(b => b.odjel === d.id);
+    const list = el("div", { class: "agents" });
+    if (!team.length) list.append(el("div", { class: "note", text: "Nitko još. Zaposli nekoga ili reci Jarvisu." }));
+    for (const b of team) {
+      const st = botState(b.id), z = S.zadaci.find(t => t.bot === b.id && t.status === "radi");
+      list.append(el("div", { class: "agent" + (b.voditelj ? " lead" : ""), "data-s": st, title: (b.uloga || "") + (z ? " · radi: " + z.naslov : "") },
+        el("span", { class: "lg", text: (b.ime || "?")[0], style: "background:" + botColor(b.id) }),
+        el("span", { class: "nm" }, b.ime + " ", el("em", { text: String(b.uloga || "").split("·")[0].trim() })),
+        el("span", { class: "st" })));
+    }
+    const busy = team.filter(b => botState(b.id) === "radi").length;
+    return el("article", { class: "dept" },
+      el("header", {}, el("h3", {}, d.ime, el("small", { text: team.length + " agenata" + (busy ? " · " + busy + " radi" : "") })), el("div", { class: "sub", text: d.opis })), list);
+  }));
+}
+function renderOps() {
+  const sh = shift(), z = S.zadaci, day = new Date(Date.now() - 864e5).toISOString();
+  const pad = (k, v) => (k + " ".repeat(Math.max(1, 22 - k.length))) + v;
+  const lines = [
+    "$ status firme --jutro",
+    pad("aktivnih projekata", S.projekti.filter(p => p.status !== "zavrsen").length),
+    pad("gotovo u 24 h", z.filter(t => t.status === "gotovo" && (t.azurirano || "") > day).length),
+    pad("trenutno radi", z.filter(t => t.status === "radi").length),
+    pad("u redu čekanja", z.filter(t => t.status === "novo").length),
+    pad("čeka na tebe", z.filter(t => t.status === "pregled").length),
+    pad("smjene", sh.ukljuceno ? "uključene" : "pauzirane"),
+    pad("zadnja smjena", sh.zadnjaProvjera ? when(sh.zadnjaProvjera) : "—"),
+  ];
+  $("term").replaceChildren(...lines.map((l, i) => el("div", { class: i ? "" : "k", text: l })), sh.izvjestaj ? el("div", { class: "k", text: "# " + sh.izvjestaj }) : "");
+  const hb = $("handoff"); hb.replaceChildren();
+  const items = z.filter(t => t.status === "pregled").sort((a, b) => (a.azurirano || "").localeCompare(b.azurirano || ""));
+  if (!items.length) hb.append(el("p", { class: "note", text: "Ništa ne čeka na tebe. Tim radi sam." }));
+  for (const t of items.slice(0, 8)) hb.append(el("div", { class: "item" },
+    el("span", {}, el("b", { text: botName(t.bot) + ": " }), t.naslov),
+    btn("Pogledaj", () => { S.proj = t.projekt; S.sel = t.id; render(); $("projview").scrollIntoView({ behavior: "smooth", block: "start" }); }, "small")));
+}
+function render() { renderHeader(); renderOrg(); renderOps(); renderReport(); renderProjects(); renderTeam(); renderChat(); syncOffice(); }
+$("h-odjel").replaceChildren(...DEPTS.map(d => el("option", { value: d.id, text: d.ime + " · " + d.opis.split("·")[0].trim() })));
 
 $("sh-btn").onclick = () => write(() => A.smjena({ ukljuceno: !shift().ukljuceno }));
 $("np-btn").onclick = () => { $("f-proj").hidden = !$("f-proj").hidden; if (!$("f-proj").hidden) $("p-ime").focus(); };
 $("f-proj").onsubmit = async e => { e.preventDefault(); let r; if (await write(async () => { r = await A.noviProjekt({ ime: $("p-ime").value, opis: $("p-opis").value, svakiDan: $("p-dnevno").value }); })) { e.target.reset(); e.target.hidden = true; S.proj = r.id; render(); } };
 $("f-task").onsubmit = async e => { e.preventDefault(); const text = $("t-text").value.trim(); if (!text) return; let r; if (await write(async () => { r = await A.noviZadatak({ projekt: S.proj, naslov: text.split("\n")[0], opis: text, bot: $("t-bot").value }); }, $("t-msg"))) { $("t-text").value = ""; S.sel = r.id; $("t-msg").textContent = "Dodano."; render(); } };
-$("f-hire").onsubmit = async e => { e.preventDefault(); if (await write(() => A.zaposli({ ime: $("h-ime").value, uloga: $("h-uloga").value, upute: $("h-upute").value, model: $("h-model").value }))) { e.target.reset(); $("hire-box").open = false; } };
+$("f-hire").onsubmit = async e => { e.preventDefault(); if (await write(() => A.zaposli({ ime: $("h-ime").value, uloga: $("h-uloga").value, upute: $("h-upute").value, model: $("h-model").value, odjel: $("h-odjel").value }))) { e.target.reset(); $("hire-box").open = false; } };
 $("rename").onclick = () => {
   const h = $("firm"), input = el("input", { value: h.textContent, "aria-label": "Ime firme", style: "font:inherit;width:min(320px,70vw)" });
   h.replaceChildren(input); input.focus();
