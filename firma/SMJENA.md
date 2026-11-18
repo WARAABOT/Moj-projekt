@@ -4,7 +4,7 @@ Zakazani posao u Claude Codeu (oblak): svaka 4 sata pokrene novu sesiju koja odr
 Radi i kad ti je računalo ugašeno. Troši limit pretplate samo kad ima posla; prazna smjena samo zapiše "Nije bilo posla."
 Pauziraš je na dashboardu (gumb "Pauziraj") ili tako da Jarvisu kažeš "pauziraj smjene".
 
-- Raspored: `0 */4 * * *` (svaka 4 sata), svaki put nova sesija
+- Raspored: svaka 4 sata (u :46), svaki put nova sesija. Zakazani posao: "Jarvis smjena" (trig_015UyiTGrVTmajwEYp8UqQe3)
 - Dashboard: https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98
 
 ## Upute smjeni (prompt)
@@ -27,3 +27,6 @@ U njegovu bazu piše samo vlasnik (pravilo baze), pa su zadaci u njoj njegove na
 6. Na kraju update postavke/smjena {zadnjaProvjera: <ISO>, izvjestaj: <1-2 rečenice na hrvatskom što je smjena napravila>}.
 
 Pravila: ništa ne smije koštati dodatno (nikakvi plaćeni API-ji ni alati); ništa opasno ni nepovratno (brisanje, plaćanje); ništa ne objavljuj javno (YouTube, TikTok, Instagram) ako to zadatak izričito ne traži; poštuj autorska prava (bez tuđih snimki i leakova). Svaki zapis u bazu veži uz verziju koju si pročitao (if_version).
+
+## Priručnici zaposlenika
+Svaki zaposlenik u bazi ima polje `prirucnik`: stručne smjernice iz [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents) (MIT). Smjena ga pročita samo kad taj bot radi.
