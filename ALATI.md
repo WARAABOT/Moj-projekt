@@ -8,6 +8,7 @@ Postavke su u `.claude/settings.json`, pa ih dobije svaki Claude Code koji otvor
 | 2 | Besplatni LLM API-ji | vidi dolje | 💻 na računalu, preko OpenRoutera |
 | 3 | Graphify | [safishamsi/graphify](https://github.com/safishamsi/graphify), PyPI paket `graphifyy` | ✅ dodano (skill + hookovi) |
 | 5 | ccusage | [ccusage/ccusage](https://github.com/ccusage/ccusage) | ✅ dodano (statusna traka) |
+| 6 | Clone Website (replica) | [JCodesMore/ai-website-cloner-template](https://github.com/JCodesMore/ai-website-cloner-template) | ✅ dodano (skill) |
 | 4 | Agent Skills | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) | ➖ maknuto (radi isto što Superpowers) |
 
 ## 1. Ponytail
@@ -28,6 +29,12 @@ uv tool install graphifyy     # ili: pipx install graphifyy
 Paket se zove `graphifyy` (s dva y). Pazi da ne instaliraš nešto sličnog imena.
 Graf napraviš u Claude Codeu naredbom `/graphify .`.
 Ako `graphify` nije instaliran, hookovi se tiho preskoče i ništa se ne kvari.
+
+## 6. Clone Website (replica)
+Skill koji web stranicu ponovno izgradi kao kod koji radi (sadržaj, slike, izgled na mobitelu i računalu, animacije).
+Nalazi se u `.claude/skills/clone-website/` (MIT licenca). Pokreće se naredbom `/clone-website <url>`.
+Treba mu preglednik (Playwright plugin ili `claude --chrome`).
+Koristi ga samo za stranice koje smiješ kopirati (svoje ili s dopuštenjem). Tuđe ime, logo i dizajn ne smiješ objavljivati kao svoje.
 
 ## 4. Agent Skills (maknuto)
 Maknut je jer radi isto što i Superpowers (planiranje, TDD, review). Dva ista alata samo troše tokene u svakoj poruci.
