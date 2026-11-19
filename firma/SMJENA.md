@@ -4,7 +4,7 @@ Zakazani posao u Claude Codeu (oblak): svaka 4 sata pokrene novu sesiju koja odr
 Radi i kad ti je računalo ugašeno. Troši limit pretplate samo kad ima posla; prazna smjena samo zapiše "Nije bilo posla."
 Pauziraš je na dashboardu (gumb "Pauziraj") ili tako da Jarvisu kažeš "pauziraj smjene".
 
-- Raspored: svaka 4 sata (u :46), svaki put nova sesija. Zakazani posao: "Jarvis smjena" (trig_015UyiTGrVTmajwEYp8UqQe3)
+- Raspored: svaka 4 sata (u :43), svaki put nova sesija u okruženju "Moj-projekt" (env_01CWJzf8dxBAzWMKHA3kFbyX). Zakazani posao: "Jarvis smjena" (trig_01WZchAFqJ2htppnpEsr2ERo)
 - Dashboard: https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98
 
 ## Upute smjeni (prompt)
@@ -30,3 +30,8 @@ Pravila: ništa ne smije koštati dodatno (nikakvi plaćeni API-ji ni alati); ni
 
 ## Priručnici zaposlenika
 Svaki zaposlenik u bazi ima polje `prirucnik`: stručne smjernice iz [VoltAgent/awesome-claude-code-subagents](https://github.com/VoltAgent/awesome-claude-code-subagents) (MIT). Smjena ga pročita samo kad taj bot radi.
+
+## Okruženje "Moj-projekt" (19.11.)
+- Dopušteni dodatni hostovi: speech.platform.bing.com (besplatni glas edge-tts), api/videos/images.pexels.com (besplatne snimke; treba PEXELS_API_KEY).
+- Smjena sama klonira repo i po potrebi instalira `requirements.txt`, pytest i graphify.
+- Plugini iz `.claude/settings.json` se u smjeni NE učitavaju (repo se klonira tek nakon pokretanja); alati su opisani u uputama svakog zaposlenika u bazi.
