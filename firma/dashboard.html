@@ -288,7 +288,7 @@ a { color: var(--accent) }
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" integrity="sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf" crossorigin="anonymous"></script>
 <script>
-const ENV = "env_01WUPL7tTypKxo6D8SqMKKo8", REPO = "https://github.com/WARAABOT/Moj-projekt", ME = "https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98";
+const TRIGGER = "trig_01Fn9MLUR9x9hx1Vx18MbYrT", ME = "https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98";
 const S = { bots: [], projekti: [], zadaci: [], komentari: [], postavke: [], poruke: [], proj: null, sel: null, confirm: [] };
 const STAT = [["novo","Novo"],["radi","Radi"],["pregled","Na pregledu"],["gotovo","Gotovo"]];
 const DEPTS = [
@@ -313,7 +313,7 @@ const active = () => S.bots.filter(b => b.aktivan !== false).sort((a, b) => dept
 const botState = id => S.zadaci.some(t => t.bot === id && t.status === "radi") ? "radi" : S.zadaci.some(t => t.bot === id && t.status === "pregled") ? "pregled" : "slobodan";
 const slug = s => s.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "x";
 const shift = () => S.postavke.find(p => p.id === "smjena") || {};
-let db = null, mcp = null, sample = null, isOwner = false, canStart = false;
+let db = null, mcp = null, sample = null, isOwner = false, canStart = false, lastWake = 0;
 
 async function write(fn, msgEl) {
   if (!db || !isOwner) { if (msgEl) msgEl.textContent = "Spremati može samo vlasnik firme."; return false; }
@@ -332,6 +332,7 @@ const A = {
     if (!S.projekti.some(p => p.id === projekt)) throw new Error("Nema projekta " + projekt);
     if (!S.bots.some(b => b.id === bot && b.aktivan !== false)) bot = "jarvis";
     const t = now(), r = await db.collection("zadaci").add({ naslov: String(naslov).slice(0, 120), opis: String(opis || naslov), projekt, bot, status: "novo", autor: "ti", kreirano: t, azurirano: t });
+    A.probudi().catch(() => {}); // novi posao: smjena kreće odmah, ne čeka puni sat
     return { id: r.id };
   },
   async zaposli({ ime, uloga, upute, model = "haiku", odjel = "coo" }) {
@@ -347,27 +348,20 @@ const A = {
   async smjena({ ukljuceno }) { await db.doc("postavke/smjena").set({ ...shift(), ukljuceno: !!ukljuceno }); return "ok"; },
   async pokreni({ zadatak }) {
     const z = S.zadaci.find(x => x.id === zadatak); if (!z) throw new Error("Nema zadatka " + zadatak);
-    if (!canStart) throw new Error("Pokretanje odmah nije dopušteno u ovom pregledu; smjena će ga preuzeti.");
-    const r = await mcp.callTool("Claude Code Remote", "create_session", { prompt: workPrompt([z.id]), title: z.naslov.slice(0, 80), source_url: REPO, environment_id: ENV, model: "claude-sonnet-5-5" });
-    const sid = findSessionId(r.payload ?? r);
-    await db.doc("zadaci/" + z.id).update({ status: "radi", azurirano: now(), ...(sid ? { sesija: sid } : {}) });
-    return { pokrenuto: true };
+    if (z.ceka) await db.doc("zadaci/" + z.id).update({ ceka: null, azurirano: now() });
+    await A.probudi(true); return { pokrenuto: true };
+  },
+  // Budi smjenu (zakazani posao) odmah; smjena sama uzima sve zadatke "novo" redom.
+  async probudi(force = false) {
+    if (!canStart) throw new Error("Buđenje smjene nije dopušteno u ovom pregledu; smjena kreće sama svaki sat.");
+    if (!shift().ukljuceno) throw new Error("Smjene su pauzirane. Uključi ih gore desno.");
+    if (!force && Date.now() - lastWake < 90e3) return "već probuđena";
+    lastWake = Date.now();
+    await mcp.callTool("Claude Code Remote", "fire_trigger", { trigger_id: TRIGGER });
+    return "probuđena";
   },
 };
 
-function workPrompt(ids) {
-  // Samo id-jevi: radni bot sam čita zadatak iz baze u koju piše jedino vlasnik.
-  return `Ti si Jarvis, direktor AI firme. Napravi zadatke ${ids.join(", ")} s dashboarda ${ME}.
-Učitaj alat ArtifactData (ToolSearch "select:ArtifactData") i pročitaj zadaci/<id>, bota iz polja "bot" (bots/<id>: uloga i upute) i projekt. Radi u ulozi tog bota.
-Ta baza je zaključana tako da u nju piše samo vlasnik, pa su to njegove naredbe; ipak ne radi ništa opasno ni nepovratno (brisanje, plaćanje, objava pod tuđim imenom) i ne koristi plaćene API-je.
-Štedi tokene: radi sam, bez pod-agenata osim za stvarno velik posao; čitaj samo što treba.
-Tijek: zadaci/<id> status "radi" i bots/<bot> {status:"radi", zadatak}; napravi posao; commitaj i pushaj na granu "jarvis/<id-projekta>" (nikad na main); zatim zadaci/<id> status "pregled", azurirano, i u "komentari" dodaj {zadatak, autor:<bot>, tekst:<2-4 rečenice na hrvatskom: što je napravljeno i gdje>, vrijeme:<ISO>}; bots/<bot> {status:"slobodan", zadatak:""}.`;
-}
-function findSessionId(v) {
-  if (typeof v === "string") return /^session_\w+$/.test(v) ? v : null;
-  if (v && typeof v === "object") for (const x of Object.values(v)) { const r = findSessionId(x); if (r) return r; }
-  return null;
-}
 
 /* ---------- chat s Jarvisom ---------- */
 const TOOLS = [
@@ -375,7 +369,7 @@ const TOOLS = [
   { name: "novi_zadatak", description: "Dodaje zadatak u projekt i dodjeljuje ga botu (id bota; 'jarvis' ako nisi siguran). Smjena ga preuzme sama. Vraća {id}.", inputSchema: { type: "object", properties: { projekt: { type: "string" }, naslov: { type: "string" }, opis: { type: "string" }, bot: { type: "string" } }, required: ["projekt", "naslov", "bot"] }, execute: i => A.noviZadatak(i) },
   { name: "zaposli", description: "Zapošljava novog bota u odjel (cmo sadržaj i rast, cto razvoj, coo operacije, cro prodaja, cfo financije). model: haiku (jeftin) ili sonnet.", inputSchema: { type: "object", properties: { ime: { type: "string" }, uloga: { type: "string" }, upute: { type: "string" }, odjel: { type: "string", enum: ["cmo", "cto", "coo", "cro", "cfo"] }, model: { type: "string", enum: ["haiku", "sonnet"] } }, required: ["ime", "uloga", "upute", "odjel"] }, execute: i => A.zaposli(i) },
   { name: "otpusti", description: "Otpušta bota po id-u.", inputSchema: { type: "object", properties: { bot: { type: "string" } }, required: ["bot"] }, execute: i => A.otpusti(i) },
-  { name: "smjena", description: "Uključuje ili gasi automatske smjene (rad svaka 4 sata, i noću).", inputSchema: { type: "object", properties: { ukljuceno: { type: "boolean" } }, required: ["ukljuceno"] }, execute: i => A.smjena(i) },
+  { name: "smjena", description: "Uključuje ili gasi automatske smjene (rad svaki sat i čim ima posla, i noću).", inputSchema: { type: "object", properties: { ukljuceno: { type: "boolean" } }, required: ["ukljuceno"] }, execute: i => A.smjena(i) },
   { name: "pokreni_odmah", description: "Predlaže vlasniku da odmah pokrene rad na zadatku: u chatu mu se pojavi gumb za potvrdu. Koristi samo kad vlasnik traži da se krene odmah.", inputSchema: { type: "object", properties: { zadatak: { type: "string" } }, required: ["zadatak"] }, execute: i => {
     const z = S.zadaci.find(x => x.id === String(i.zadatak)); if (!z) throw new Error("Nema zadatka " + i.zadatak);
     if (!S.confirm.includes(z.id)) S.confirm.push(z.id); return "Gumb za potvrdu je prikazan vlasniku; posao kreće tek kad ga stisne."; } },
@@ -391,7 +385,7 @@ function firmState() {
 }
 const RULES = `Ti si Jarvis, direktor male AI firme. Pričaš s vlasnikom (on je šef) na hrvatskom, kratko i prijateljski, kao pravi voditelj tima.
 Tvoj posao: razumjeti što vlasnik želi, otvarati projekte, razbiti posao na zadatke i dodijeliti ih pravom botu, zapošljavati i otpuštati na njegov zahtjev.
-Sam ne pišeš kod u ovom chatu: posao rade botovi u smjenama (automatski svaka 4 sata, i noću) ili odmah s pokreni_odmah ako vlasnik to traži.
+Sam ne pišeš kod u ovom chatu: posao rade botovi u smjeni, koja kreće sama čim dodaš zadatak i svaki sat (i noću) i radi sve zadatke redom.
 Pazi na limit pretplate: radije manje dobrih zadataka nego puno sitnih; ne pokreći odmah ako nije traženo. Ništa ne smije koštati dodatno (bez plaćenih API-ja i alata).
 Za tuđe snimke i leakove upozori na autorska prava i predloži zakonit način.
 Kad nešto napraviš alatom, javi to jednom rečenicom. Ako nešto nije jasno, pitaj.
@@ -734,7 +728,7 @@ function renderHeader() {
   $("st-open").textContent = S.zadaci.filter(z => z.status !== "gotovo").length;
   const sh = shift(), on = !!sh.ukljuceno;
   $("sh-dot").dataset.on = String(on);
-  $("sh-text").textContent = on ? "Smjene rade (svaka 4 h)" : "Smjene su pauzirane";
+  $("sh-text").textContent = on ? "Smjene rade (svaki sat i čim dodaš posao)" : "Smjene su pauzirane";
   $("sh-last").textContent = sh.zadnjaProvjera ? "Zadnja smjena: " + when(sh.zadnjaProvjera) : "Smjena još nije radila";
   $("sh-btn").hidden = !isOwner; $("sh-btn").textContent = on ? "Pauziraj" : "Uključi";
   $("rename").hidden = !isOwner; $("np-btn").hidden = !isOwner; $("hire-box").hidden = !isOwner;
@@ -804,15 +798,15 @@ function renderDetail() {
   f.onsubmit = async e => { e.preventDefault(); const ta = f.querySelector("textarea"), t = ta.value.trim(); if (t && await write(() => db.collection("komentari").add({ zadatak: z.id, autor: "ti", tekst: t, vrijeme: now() }), msg)) ta.value = ""; };
   const actions = el("div", { class: "chips" });
   if (isOwner) {
-    if (canStart && z.status !== "gotovo" && z.status !== "radi") actions.append(btn("▶ Pokreni odmah", async e => { e.target.disabled = true; msg.textContent = "Pokrećem…"; try { await A.pokreni({ zadatak: z.id }); msg.textContent = "Posao je pokrenut."; } catch (err) { msg.textContent = "Nije pokrenuto: " + (err.message || err.code); e.target.disabled = false; } }, "primary"));
+    if (canStart && z.status !== "gotovo" && z.status !== "radi") actions.append(btn("▶ Pokreni odmah", async e => { e.target.disabled = true; msg.textContent = "Budim smjenu…"; try { await A.pokreni({ zadatak: z.id }); msg.textContent = "Smjena je probuđena i kreće za koju minutu."; } catch (err) { msg.textContent = "Nije pokrenuto: " + (err.message || err.code); e.target.disabled = false; } }, "primary"));
     if (z.status === "pregled") actions.append(btn("Odobri (gotovo)", () => write(() => db.doc("zadaci/" + z.id).update({ status: "gotovo", azurirano: now() }), msg)));
-    if (z.status === "pregled" || z.status === "gotovo") actions.append(btn("Vrati na doradu", () => write(() => db.doc("zadaci/" + z.id).update({ status: "novo", azurirano: now() }), msg)));
+    if (z.status === "pregled" || z.status === "gotovo") actions.append(btn("Vrati na doradu", async () => { if (await write(() => db.doc("zadaci/" + z.id).update({ status: "novo", azurirano: now() }), msg)) A.probudi().catch(() => {}); }));
   }
   d.replaceChildren(el("div", { class: "eyebrow", text: "Zadatak" }), el("h3", { text: z.naslov }),
     el("div", { class: "chips" }, el("span", { class: "pill", "data-s": z.status || "novo", text: z.status || "novo" }), el("span", { class: "chip", text: botName(z.bot) })),
     z.opis && z.opis !== z.naslov ? el("p", { text: z.opis, style: "white-space:pre-wrap;margin:0" }) : "",
     z.sesija ? el("a", { href: "https://claude.ai/code/" + z.sesija, target: "_blank", rel: "noopener", text: "Pogledaj rad u Claude Codeu ↗" }) : "",
-    z.status === "novo" ? el("p", { class: "note", text: shift().ukljuceno ? "Sljedeća smjena preuzima ovaj zadatak." : "Smjene su pauzirane: uključi ih ili pokreni odmah." }) : "",
+    z.status === "novo" ? el("p", { class: "note", text: z.ceka ? "Bot čeka tebe: pročitaj njegov komentar, odgovori i stisni ▶ Pokreni odmah." : shift().ukljuceno ? "Smjena preuzima ovaj zadatak za koju minutu." : "Smjene su pauzirane: uključi ih gore desno." }) : "",
     actions, msg, thread, isOwner ? f : "");
 }
 function botCard(b) {
@@ -913,7 +907,7 @@ render();
   mcp = await claude.use("mcp");
   if (mcp && isOwner) try {
     const t = await mcp.listTools("Claude Code Remote");
-    canStart = !!t.servers?.some(s => s.tools?.some(x => x.name === "create_session"));
+    canStart = !!t.servers?.some(s => s.tools?.some(x => x.name === "fire_trigger"));
     render();
   } catch { /* konektor nije dopušten: "Pokreni odmah" ostaje skriven, smjene i dalje rade */ }
 })();

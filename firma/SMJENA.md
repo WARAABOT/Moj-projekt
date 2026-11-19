@@ -1,5 +1,17 @@
 # Jarvis smjena
 
+**Kako radi (od 19.11.):** jedan stalni radnik, sesija "Jarvis smjena (stalni radnik)" (session_01LZgkR4vDf59vKVAtUuLN4A), u okruženju "Jarvis radnik" (env_01Ew84TJ21ZZafxtr2rZhZKN), s repozitorijem i pravom spremanja na granu `jarvis/rad`.
+- Zakazani posao "Jarvis smjena (budi radnika)" (trig_01Fn9MLUR9x9hx1Vx18MbYrT) šalje mu poruku "Smjena" svaki sat.
+- Dashboard ga budi odmah kad dodaš zadatak ili stisneš "▶ Pokreni odmah".
+- U jednoj smjeni radi sve zadatke "novo" redom (najviše 8), pa ponovno provjeri ima li novih.
+- Zašto stalni radnik: zakazane smjene u novoj sesiji nemaju pravo spremanja u repozitorij (push 403).
+- Okruženja "Moj-projekt" i "Default" se za smjene više ne koriste; "Moj-projekt" možeš obrisati u Settings → Environments.
+
+---
+
+## Stara bilješka
+# Jarvis smjena
+
 Zakazani posao u Claude Codeu (oblak): svaka 4 sata pokrene novu sesiju koja odradi do 3 zadatka s dashboarda.
 Radi i kad ti je računalo ugašeno. Troši limit pretplate samo kad ima posla; prazna smjena samo zapiše "Nije bilo posla."
 Pauziraš je na dashboardu (gumb "Pauziraj") ili tako da Jarvisu kažeš "pauziraj smjene".
