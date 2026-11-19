@@ -111,6 +111,9 @@ header { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; justify-co
 .msg .who { font: 600 12px var(--f-mono) } .msg .who time { font-weight: 400; color: var(--muted); margin-left: 6px }
 .msg p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere }
 details summary { cursor: pointer; font-weight: 600 }
+.rezultat { display: grid; gap: 8px; border: 1px solid var(--line); border-left: 3px solid var(--s-pregled); border-radius: 8px; padding: 10px; background: var(--bg) }
+.rez-text { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow-y: auto; font-size: 14px; line-height: 1.55 }
+.rezultat a.chip { text-decoration: none; color: var(--accent) }
 
 button { font: 500 13px var(--f-body); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; cursor: pointer }
 button:hover { border-color: var(--accent) }
@@ -797,17 +800,32 @@ function renderDetail() {
   const f = el("form", {}, el("label", {}, "Tvoj komentar ili prigovor", el("textarea", { id: "c-text", required: "" })), el("button", { class: "primary", type: "submit", text: "Komentiraj" }));
   f.onsubmit = async e => { e.preventDefault(); const ta = f.querySelector("textarea"), t = ta.value.trim(); if (t && await write(() => db.collection("komentari").add({ zadatak: z.id, autor: "ti", tekst: t, vrijeme: now() }), msg)) ta.value = ""; };
   const actions = el("div", { class: "chips" });
+  const fix = async () => { // "Vrati na doradu": tekst iz polja ide botu kao komentar
+    const ta = f.querySelector("textarea"), t = ta.value.trim();
+    if (!t) { msg.textContent = "Prvo u polje ispod napiši što treba popraviti, pa stisni Vrati na doradu."; ta.focus(); return; }
+    if (await write(async () => { await db.collection("komentari").add({ zadatak: z.id, autor: "ti", tekst: t, vrijeme: now() }); await db.doc("zadaci/" + z.id).update({ status: "novo", ceka: null, azurirano: now() }); }, msg)) { ta.value = ""; msg.textContent = "Vraćeno botu s tvojim komentarom."; A.probudi().catch(() => {}); }
+  };
   if (isOwner) {
-    if (canStart && z.status !== "gotovo" && z.status !== "radi") actions.append(btn("▶ Pokreni odmah", async e => { e.target.disabled = true; msg.textContent = "Budim smjenu…"; try { await A.pokreni({ zadatak: z.id }); msg.textContent = "Smjena je probuđena i kreće za koju minutu."; } catch (err) { msg.textContent = "Nije pokrenuto: " + (err.message || err.code); e.target.disabled = false; } }, "primary"));
-    if (z.status === "pregled") actions.append(btn("Odobri (gotovo)", () => write(() => db.doc("zadaci/" + z.id).update({ status: "gotovo", azurirano: now() }), msg)));
-    if (z.status === "pregled" || z.status === "gotovo") actions.append(btn("Vrati na doradu", async () => { if (await write(() => db.doc("zadaci/" + z.id).update({ status: "novo", azurirano: now() }), msg)) A.probudi().catch(() => {}); }));
+    if (canStart && z.status === "novo") actions.append(btn("▶ Pokreni odmah", async e => { e.target.disabled = true; msg.textContent = "Budim smjenu…"; try { await A.pokreni({ zadatak: z.id }); msg.textContent = "Smjena je probuđena i kreće za koju minutu."; } catch (err) { msg.textContent = "Nije pokrenuto: " + (err.message || err.code); e.target.disabled = false; } }, "primary"));
+    if (z.status === "pregled") actions.append(btn("✓ Odobri, gotovo je", () => write(() => db.doc("zadaci/" + z.id).update({ status: "gotovo", azurirano: now() }), msg), "primary"));
+    if (z.status === "pregled" || z.status === "gotovo") actions.append(btn("↺ Vrati na doradu", fix));
   }
+  // Rezultat: tekst i datoteke koje je bot predao (repo je javan, pa se poveznice otvaraju i na mobitelu)
+  const grana = z.grana || "jarvis/rad", gh = p => "https://github.com/WARAABOT/Moj-projekt/blob/" + grana + "/" + String(p).replace(/^\/+/, "");
+  const files = Array.isArray(z.datoteke) ? z.datoteke : [];
+  const rez = (z.rezultat || files.length) ? el("div", { class: "rezultat" },
+      el("div", { class: "eyebrow", text: "Rezultat" }),
+      z.rezultat ? el("div", { class: "rez-text", text: z.rezultat }) : "",
+      files.length ? el("div", { class: "chips" }, ...files.map(p => el("a", { class: "chip", href: gh(p), target: "_blank", rel: "noopener", text: "📄 " + String(p).split("/").pop() + " ↗" }))) : "")
+    : (z.status === "pregled" || z.status === "gotovo") ? el("p", { class: "note" }, "Bot rezultat nije poslao u dashboard. ", el("a", { href: "https://github.com/WARAABOT/Moj-projekt/tree/" + grana, target: "_blank", rel: "noopener", text: "Otvori granu " + grana + " ↗" })) : "";
   d.replaceChildren(el("div", { class: "eyebrow", text: "Zadatak" }), el("h3", { text: z.naslov }),
     el("div", { class: "chips" }, el("span", { class: "pill", "data-s": z.status || "novo", text: z.status || "novo" }), el("span", { class: "chip", text: botName(z.bot) })),
-    z.opis && z.opis !== z.naslov ? el("p", { text: z.opis, style: "white-space:pre-wrap;margin:0" }) : "",
-    z.sesija ? el("a", { href: "https://claude.ai/code/" + z.sesija, target: "_blank", rel: "noopener", text: "Pogledaj rad u Claude Codeu ↗" }) : "",
+    z.opis && z.opis !== z.naslov ? el("details", {}, el("summary", { text: "Što je traženo" }), el("p", { text: z.opis, style: "white-space:pre-wrap;margin:6px 0 0" })) : "",
+    rez,
     z.status === "novo" ? el("p", { class: "note", text: z.ceka ? "Bot čeka tebe: pročitaj njegov komentar, odgovori i stisni ▶ Pokreni odmah." : shift().ukljuceno ? "Smjena preuzima ovaj zadatak za koju minutu." : "Smjene su pauzirane: uključi ih gore desno." }) : "",
-    actions, msg, thread, isOwner ? f : "");
+    z.status === "radi" ? el("p", { class: "note", text: botName(z.bot) + " upravo radi na ovome." }) : "",
+    actions, msg, isOwner ? f : "", thread);
+  f.querySelector("label").firstChild.textContent = z.status === "pregled" ? "Komentar ili što treba popraviti" : "Tvoj komentar ili prigovor";
 }
 function botCard(b) {
   const open = S.zadaci.filter(z => z.bot === b.id && z.status !== "gotovo").length, gone = b.aktivan === false;
