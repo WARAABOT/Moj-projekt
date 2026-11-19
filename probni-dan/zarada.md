@@ -1,0 +1,8 @@
+# Tri realna načina zarade za faceless GTA 6 kanal
+
+1. **YouTube Partner Program (oglasi).** Trenutni uvjeti prema više izvora: 1000 pretplatnika + 4000 javnih sati gledanja ILI 10 mil. pregleda Shortsa. Niža razina (500 pretplatnika, 3 objave u 90 dana, 3000 sati ili 3 mil. Shorts pregleda) daje samo fan-funding, i to samo gdje je dostupna. Prema člancima, od 1. 2. 2027. za nove prijavitelje: 1000 pretplatnika + 8000 sati (365 dana) ILI 20 mil. Shorts pregleda (90 dana). Dakle, što prije uđeš, to lakše. Izvori: [vidIQ](https://vidiq.com/pt/blog/post/youtube-partner-program-guide), [Metricool](https://metricool.com/youtube-partner-program-2027-changes/), [NewscastStudio](https://www.newscaststudio.com/2026/08/10/youtube-partner-program-monetization-changes-2027/). Većinom treći izvori; provjeriti na YouTubeovoj pomoći.
+2. **Affiliate poveznice** (igre, oprema, pretplate) u opisu videa. Nema praga pretplatnika kod većine programa, ali treba čist opis s oznakom da je poveznica partnerska i prihvaćanje uvjeta pojedinog programa. Prihod je malen dok kanal nema redovne preglede. (Opća praksa; bez numeričkog izvora u ovoj smjeni.)
+3. **TikTok/Instagram:** programi plaćanja kreatorima imaju vlastite pragove i ovise o regiji (Hrvatska možda nije pokrivena); nisu provjereni u ovoj smjeni, pa to treba provjeriti prije planiranja. Sigurnija alternativa: koristiti ih kao izvor prometa prema YouTubeu.
+
+## Koliko treba do prvog novca
+Ovisi o trenutnim brojkama kanala (stats/*.json i history/*.json u repou ne postoje u glavnoj grani, pa ih nisam mogao pročitati). Leon neka usporedi stvarne brojke s pragovima iznad.
