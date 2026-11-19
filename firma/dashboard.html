@@ -44,13 +44,15 @@ header { display: flex; flex-wrap: wrap; gap: 16px; align-items: end; justify-co
 .dot[data-on="true"] { background: var(--s-gotovo); box-shadow: 0 0 0 4px color-mix(in srgb, var(--s-gotovo) 25%, transparent) }
 
 /* 3D ured */
-.office { position: relative; height: 400px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--floor); touch-action: pan-y }
-.office canvas { display: block; width: 100%; height: 100%; cursor: grab }
-.labels { position: absolute; inset: 0; pointer-events: none }
-.tag { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; font: 600 11px var(--f-mono); background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; display: flex; gap: 6px; align-items: center }
-.tag i { width: 8px; height: 8px; border-radius: 50%; background: var(--s-novo); font-style: normal }
-.tag[data-s="radi"] i { background: var(--s-radi) } .tag[data-s="pregled"] i { background: var(--s-pregled) }
-.tag small { color: var(--muted); font-weight: 400 }
+.office { position: relative; height: min(72vh, 600px); min-height: 380px; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--floor) }
+.office:fullscreen { height: 100%; border-radius: 0 }
+.office canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none }
+.labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden }
+.tag { z-index: 2; position: absolute; left: 0; top: 0; white-space: nowrap; font: 600 11px var(--f-mono); background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; pointer-events: auto; cursor: pointer; border-left: 3px solid var(--s-novo) }
+.tag[data-s="radi"] { border-left-color: var(--s-radi) } .tag[data-s="pregled"] { border-left-color: var(--s-pregled) }
+.bub3d { z-index: 3; position: absolute; left: 0; top: 0; max-width: 190px; font: 500 12px/1.3 var(--f-body); background: #fff; color: #15202C; border-radius: 10px; padding: 5px 9px; box-shadow: 0 4px 14px -6px rgba(0,0,0,.4); white-space: normal; text-align: center }
+.osign { position: absolute; left: 0; top: 0; font: 800 13px var(--f-body); letter-spacing: .04em; text-transform: uppercase; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; white-space: nowrap; opacity: .9 }
+.osign.top { font-size: 11px; background: var(--brain); color: #fff; border-color: transparent }
 .office-fallback { position: absolute; inset: 0; display: grid; place-items: center; padding: 20px; text-align: center }
 .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted) }
 .legend span { display: inline-flex; gap: 6px; align-items: center }
@@ -184,6 +186,16 @@ a { color: var(--accent) }
     </div>
   </header>
 
+  <section aria-labelledby="h-office">
+    <div class="bar">
+      <h2 id="h-office">Ured</h2>
+      <div class="chips"><button type="button" class="small primary" id="o-demo" aria-pressed="false">▶ Demo: pokaži kako rade</button><button type="button" class="small" id="o-all">Cijeli ured</button><button type="button" class="small" id="o-full">Cijeli zaslon</button></div>
+    </div>
+    <div class="office" id="office"><canvas id="cv" aria-label="3D ured: svaki zaposlenik u svojoj sobi"></canvas><div class="labels" id="labels"></div></div>
+    <div class="legend"><span><i style="background:var(--s-radi)"></i>radi</span><span><i style="background:var(--s-pregled)"></i>čeka tvoj pregled</span><span>Povuci za okretanje, kotačić ili dva prsta za zum, klik na ime prati osobu</span></div>
+  </section>
+
+
   <section aria-label="Organigram firme">
     <div class="org">
       <div class="boss-row">
@@ -212,11 +224,6 @@ a { color: var(--accent) }
     </div>
   </section>
 
-  <details class="panel" id="office-box">
-    <summary>3D ured · gledaj botove kako rade</summary>
-    <div class="legend" style="margin:10px 0"><span><i style="background:var(--s-radi)"></i>radi</span><span><i style="background:var(--s-pregled)"></i>čeka tvoj pregled</span><span><i style="background:var(--s-novo)"></i>slobodan</span><span>Povuci prstom ili mišem za okretanje</span></div>
-    <div class="office" id="office"><canvas id="cv" aria-label="3D ured s botovima"></canvas><div class="labels" id="labels"></div></div>
-  </details>
 
   <div class="main">
     <section class="panel chat" aria-labelledby="h-chat">
@@ -278,7 +285,8 @@ a { color: var(--accent) }
   </section>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" integrity="sha384-wagZhIFgY4hD+7awjQjR4e2E294y6J2HSnd8eTNc15ZubTeQeVRZwhQJ+W6hnBsf" crossorigin="anonymous"></script>
 <script>
 const ENV = "env_01WUPL7tTypKxo6D8SqMKKo8", REPO = "https://github.com/WARAABOT/Moj-projekt", ME = "https://claude.ai/artifact/FymwyHwehjeH7hKoQM8f98";
 const S = { bots: [], projekti: [], zadaci: [], komentari: [], postavke: [], poruke: [], proj: null, sel: null, confirm: [] };
@@ -428,9 +436,25 @@ $("f-chat").onsubmit = async e => {
 $("c-in").onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("f-chat").requestSubmit(); } };
 
 /* ---------- 3D ured ---------- */
-const O = { ok: false, bots: new Map(), key: "", drag: 0, t0: performance.now() };
+// Svaki zaposlenik ima svoju sobu; hodaju hodnicima: Jarvis nosi zadatke, botovi nose rezultate Jarvisu, Jarvis ih nosi tebi.
+const O = { ok: false, people: new Map(), places: {}, key: "", demo: false, demoState: {}, demoNext: 0, follow: null, prev: null, signs: [], visible: true, t: 0 };
 const reduce = matchMedia("(prefers-reduced-motion: reduce)");
-function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888"; }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888";
+const ROOM = 4.2, GAP = 0.6, ROWGAP = 9, TOPZ = -9, TOPHALL = -4.3, SPEED = 2.4;
+const V = (x, z) => ({ x, z });
+const rnd = (a, b) => a + Math.random() * (b - a);
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const DEPT_TINT = { cmo: "#F6D9E4", cto: "#D9E4F6", coo: "#DCF0E1", cro: "#F6EBD3", cfo: "#E6DDF4", ost: "#E8E8E8" };
+const SAY_ASK = ["Možeš pogledati ovo?", "Treba mi tvoje mišljenje", "Evo prvi dio, provjeri", "Kako bi ti ovo riješio?"];
+const SAY_ANS = ["Evo, riješeno ✓", "Može, ovako ↓", "Super je, samo naprijed", "Dodao sam svoje ✓"];
+const DEMO_TASKS = ["Scenarij za GTA 6 video", "Popravak buga u kodu", "Sličica za novi video", "Plan objava za tjedan", "Istraživanje trendova", "Montaža kratkog videa", "Sigurnosna provjera", "Ponuda za sponzora", "Izvještaj o potrošnji"];
+const MATS = {};
+const mat = (c, o) => MATS[c] || (MATS[c] = new THREE.MeshLambertMaterial({ color: c, ...o }));
+const GEOS = {};
+const bgeo = (w, h, d) => GEOS[w + "|" + h + "|" + d] || (GEOS[w + "|" + h + "|" + d] = new THREE.BoxGeometry(w, h, d));
+function box(parent, w, h, d, m, x, y, z) { const o = new THREE.Mesh(bgeo(w, h, d), typeof m === "string" ? mat(m) : m); o.position.set(x, y, z); parent.add(o); return o; }
+const officeState = id => O.demo ? (O.demoState[id] ? "radi" : "slobodan") : botState(id);
+
 function initOffice() {
   const wrap = $("office");
   try {
@@ -439,87 +463,268 @@ function initOffice() {
     O.r.setPixelRatio(Math.min(2, devicePixelRatio));
   } catch { wrap.append(el("div", { class: "office-fallback note", text: "3D ured se ne može prikazati na ovom uređaju. Tim i projekti su ispod." })); return; }
   O.scene = new THREE.Scene();
-  O.cam = new THREE.PerspectiveCamera(38, 1, 0.1, 200);
-  O.scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 0.9));
-  const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(6, 14, 8); O.scene.add(sun);
-  O.floor = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshLambertMaterial());
-  O.floor.rotation.x = -Math.PI / 2; O.scene.add(O.floor);
-  O.group = new THREE.Group(); O.scene.add(O.group);
+  O.cam = new THREE.PerspectiveCamera(40, 1, 0.1, 400);
+  O.scene.add(new THREE.HemisphereLight(0xffffff, 0x8a96a8, 0.9));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.55); sun.position.set(-12, 30, 18); O.scene.add(sun);
+  O.ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({ color: 0xdddddd }));
+  O.ground.rotation.x = -Math.PI / 2; O.ground.position.y = -0.02; O.scene.add(O.ground);
+  O.world = new THREE.Group(); O.scene.add(O.world);
+  O.shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.18 });
+  O.shadowGeo = new THREE.CircleGeometry(0.38, 16);
+  if (THREE.OrbitControls) {
+    O.ctl = new THREE.OrbitControls(O.cam, $("cv"));
+    O.ctl.enableDamping = true; O.ctl.maxPolarAngle = Math.PI * 0.46; O.ctl.minDistance = 4; O.ctl.maxDistance = 110;
+    O.ctl.addEventListener("start", () => { O.follow = null; O.moved = true; });
+  }
   O.ok = true;
-  new ResizeObserver(() => { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; O.r.setSize(w, h, false); O.cam.aspect = w / h; O.cam.updateProjectionMatrix(); drawOnce(); }).observe(wrap);
-  let down = null;
-  $("cv").addEventListener("pointerdown", e => { down = e.clientX; $("cv").setPointerCapture(e.pointerId); });
-  $("cv").addEventListener("pointermove", e => { if (down != null) { O.drag += (e.clientX - down) * 0.008; down = e.clientX; drawOnce(); } });
-  $("cv").addEventListener("pointerup", () => { down = null; });
-  const themeSync = () => { applyTheme(); drawOnce(); };
+  new ResizeObserver(() => { const w = wrap.clientWidth, h = wrap.clientHeight; if (!w || !h) return; O.r.setSize(w, h, false); O.cam.aspect = w / h; O.cam.updateProjectionMatrix(); if (!O.follow && !O.moved) resetCam(); }).observe(wrap);
+  new IntersectionObserver(es => { O.visible = es[0].isIntersecting; }).observe(wrap);
+  const themeSync = () => applyTheme();
   matchMedia("(prefers-color-scheme: dark)").addEventListener("change", themeSync);
   new MutationObserver(themeSync).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   applyTheme();
+  $("o-demo").onclick = () => { O.demo = !O.demo; O.demoState = {}; O.demoNext = 0; $("o-demo").setAttribute("aria-pressed", String(O.demo)); $("o-demo").textContent = O.demo ? "■ Zaustavi demo" : "▶ Demo: pokaži kako rade"; };
+  $("o-all").onclick = () => { O.follow = null; O.moved = false; resetCam(); };
+  $("o-full").onclick = () => { const w = $("office"); (document.fullscreenElement ? document.exitFullscreen() : w.requestFullscreen?.())?.catch?.(() => {}); };
+  let last = performance.now();
+  const loop = now => { const dt = Math.min(0.1, (now - last) / 1000); last = now; if (O.visible && !document.hidden) tick(dt); requestAnimationFrame(loop); };
   requestAnimationFrame(loop);
 }
 function applyTheme() {
   if (!O.ok) return;
-  const bg = new THREE.Color(css("--floor")); O.scene.background = bg; O.scene.fog = new THREE.Fog(bg, 30, 60);
-  O.floor.material.color = bg.clone().offsetHSL(0, 0, -0.04);
-  for (const b of O.bots.values()) b.desk.material.color = new THREE.Color(css("--desk"));
+  const bg = new THREE.Color(css("--floor"));
+  O.scene.background = bg; O.scene.fog = new THREE.Fog(bg, 60, 160);
+  O.ground.material.color = bg.clone().offsetHSL(0, 0, -0.1);
+  O.accent = new THREE.Color(css("--accent"));
 }
-function makeBot(b, x, z, boss) {
-  const g = new THREE.Group(); g.position.set(x, 0, z);
-  const m = c => new THREE.MeshLambertMaterial({ color: c });
-  const desk = new THREE.Mesh(new THREE.BoxGeometry(boss ? 3.4 : 2.4, 0.15, 1.2), m(css("--desk"))); desk.position.set(0, 1.0, 0.9); g.add(desk);
-  for (const lx of [-1, 1]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1, 0.1), m(0x555c66)); leg.position.set(lx * (boss ? 1.5 : 1.05), 0.5, 0.9); g.add(leg); }
-  const screenMat = new THREE.MeshLambertMaterial({ color: 0x1b2330, emissive: new THREE.Color(0x000000) });
-  const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.7, 0.08), screenMat); monitor.position.set(0, 1.5, 1.2); g.add(monitor);
-  const chair = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.12, 0.9), m(0x3a4250)); chair.position.set(0, 0.6, -0.1); g.add(chair);
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.42, 1.0, 12), m(botColor(b.id))); body.position.set(0, 1.15, -0.1); g.add(body);
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), m(0xf1c9a5)); head.position.set(0, 1.92, -0.1); g.add(head);
-  const arms = [-1, 1].map(s => { const a = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.7), m(botColor(b.id))); a.position.set(s * 0.35, 1.3, 0.3); g.add(a); return a; });
-  const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.18), new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x000000 })); gem.position.set(0, 2.6, -0.1); g.add(gem);
-  if (boss) g.scale.setScalar(1.15);
-  O.group.add(g);
-  const tag = el("div", { class: "tag" }); $("labels").append(tag);
-  return { g, desk, monitor, head, arms, gem, tag, phase: hue(b.id) / 57 };
+function resetCam() {
+  const cz = (O.depth || 0) / 2 - 4, half = Math.tan(O.cam.fov * Math.PI / 360);
+  const d = Math.max(((O.depth || 0) / 2 + 9) / half, ((O.W || 20) / 2 + 4) / (half * Math.max(0.4, O.cam.aspect))) * (O.cam.aspect < 1 ? 1 : 0.8);
+  O.cam.position.set(-1, d * 0.82, cz + d * 0.5);
+  if (O.ctl) { O.ctl.target.set(0, 0, cz); O.ctl.update(); } else O.cam.lookAt(0, 0, cz);
 }
+
+/* --- gradnja ureda --- */
+function room(x, z, w, d, tint, kind, top = false) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); O.world.add(g);
+  box(g, w, 0.04, d, tint, 0, 0.02, 0);
+  const wall = "#F7F8FA", H = 1.1, T = 0.1, door = 1.3, side = (w - door) / 2;
+  box(g, w, H, T, wall, 0, H / 2, -d / 2);
+  box(g, T, H, d, wall, -w / 2, H / 2, 0);
+  box(g, T, H, d, wall, w / 2, H / 2, 0);
+  box(g, side, H, T, wall, -(door + side) / 2, H / 2, d / 2);
+  box(g, side, H, T, wall, (door + side) / 2, H / 2, d / 2);
+  const place = { x, z, desk: V(x, z - 0.95), door: V(x, z + d / 2), hall: V(x, top ? TOPHALL : z + d / 2 + 1.7), visit: V(x + 1.0, z + 0.45) };
+  if (kind === "lounge") {
+    box(g, 2.4, 0.45, 0.8, "#5B6B8C", -0.4, 0.25, -d / 2 + 0.6); box(g, 2.4, 0.6, 0.2, "#4A5A7A", -0.4, 0.6, -d / 2 + 0.25);
+    box(g, 0.6, 1.3, 0.5, "#2D3138", w / 2 - 0.5, 0.65, -d / 2 + 0.45); box(g, 0.3, 0.12, 0.05, "#E85D3F", w / 2 - 0.5, 1.0, -d / 2 + 0.71);
+    const t = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.06, 20), mat("#C9B79C")); t.position.set(0.3, 0.7, 0.3); g.add(t);
+    box(g, 0.08, 0.7, 0.08, "#888888", 0.3, 0.35, 0.3);
+    place.spots = [V(x - 0.6, z), V(x + 0.9, z + 0.2), V(x + 0.2, z + 1.0), V(x + w / 2 - 0.6, z - d / 2 + 1.2)];
+    place.visit = place.spots[0];
+    return place;
+  }
+  // stol, stolica, ekran, biljka
+  const deskW = kind === "ceo" ? 2.4 : 1.6;
+  box(g, deskW, 0.08, 0.8, "#C9B79C", 0, 0.76, -0.25);
+  for (const sx of [-1, 1]) box(g, 0.07, 0.74, 0.7, "#8C7B62", sx * (deskW / 2 - 0.1), 0.37, -0.25);
+  const screen = new THREE.MeshLambertMaterial({ color: 0x1B2330, emissive: 0x000000 });
+  box(g, 0.85, 0.52, 0.05, screen, 0, 1.12, -0.5); box(g, 0.08, 0.2, 0.08, "#333333", 0, 0.88, -0.5);
+  box(g, 0.62, 0.08, 0.6, "#3A4250", 0, 0.48, -0.95); box(g, 0.62, 0.62, 0.08, "#3A4250", 0, 0.8, -1.27);
+  const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.16, 0.35, 12), mat("#B5651D")); pot.position.set(w / 2 - 0.45, 0.18, -d / 2 + 0.45); g.add(pot);
+  const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.36, 10, 8), mat("#3E9B5A")); leaf.position.set(w / 2 - 0.45, 0.62, -d / 2 + 0.45); g.add(leaf);
+  if (kind === "ceo" || kind === "boss") { box(g, 1.6, 0.9, 0.08, kind === "ceo" ? "#14161B" : "#2B50D6", -w / 2 + 1.2, 1.3, -d / 2 + 0.07); }
+  place.screen = screen;
+  return place;
+}
+function sign(text, x, z, cls = "") { const e = el("div", { class: "osign " + cls, text }); $("labels").append(e); O.signs.push({ e, x, z }); }
+
+function makePerson(id, b, color) {
+  const g = new THREE.Group(); O.world.add(g);
+  const hips = new THREE.Group(); hips.position.y = 0.75; g.add(hips);
+  const shirt = mat(color), skin = mat("#F1C9A5"), pants = mat("#2E3440");
+  box(hips, 0.52, 0.62, 0.3, shirt, 0, 0.33, 0);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.21, 14, 10), skin); head.position.y = 0.86; hips.add(head);
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), mat(pick(["#2B1D14", "#5A3A22", "#C9A25E", "#1A1A1A", "#7A4A2A"]))); hair.position.y = 0.9; hips.add(hair);
+  for (const s of [-1, 1]) box(head, 0.05, 0.05, 0.02, "#1A1A1A", s * 0.08, 0.03, 0.2);
+  const limb = (x, y, h, m, len) => { const p = new THREE.Group(); p.position.set(x, y, 0); hips.add(p); box(p, 0.15, len, 0.15, m, 0, -len / 2, 0); return p; };
+  const armL = limb(-0.34, 0.6, 0, shirt, 0.55), armR = limb(0.34, 0.6, 0, shirt, 0.55);
+  const legL = limb(-0.13, 0.02, 0, pants, 0.72), legR = limb(0.13, 0.02, 0, pants, 0.72);
+  const doc = box(armR, 0.26, 0.03, 0.34, "#FFFFFF", 0, -0.55, 0.14); doc.visible = false;
+  if (b?.sef) g.scale.setScalar(1.12);
+  const sh = new THREE.Mesh(O.shadowGeo, O.shadowMat); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.03; g.add(sh);
+  const tag = el("div", { class: "tag", role: "button", tabindex: "0" }), bub = el("div", { class: "bub3d", hidden: "" });
+  tag.onclick = () => { O.follow = O.follow === id ? null : id; };
+  $("labels").append(tag, bub);
+  return { id, b, g, hips, armL, armR, legL, legR, doc, tag, bub, plan: [], queue: [], mode: "sit", next: O.t + rnd(3, 15), say: "", sayUntil: 0, carry: false };
+}
+
+function build(bots) {
+  O.world.clear(); O.people.clear(); O.signs = []; O.places = {}; $("labels").replaceChildren();
+  const staff = bots.filter(b => !b.sef);
+  const rows = DEPTS.map(d => ({ d, list: staff.filter(b => b.odjel === d.id) })).filter(r => r.list.length);
+  const rest = staff.filter(b => !DEPTS.some(d => d.id === b.odjel)); if (rest.length) rows.push({ d: { id: "ost", ime: "Ostali" }, list: rest });
+  const n = Math.max(4, ...rows.map(r => r.list.length));
+  O.W = n * (ROOM + GAP); O.SX = -O.W / 2 - 2; O.depth = rows.length * ROWGAP;
+  const x0 = -O.W / 2 + ROOM / 2;
+  // hodnici
+  const hall = mat("#C3CAD6");
+  box(O.world, 2.4, 0.03, O.depth + 12, hall, O.SX, 0.015, (O.depth + TOPZ) / 2 - 1);
+  box(O.world, O.W + 3, 0.03, 2.2, hall, -1.2, 0.015, TOPHALL);
+  rows.forEach((r, j) => {
+    const rz = j * ROWGAP;
+    box(O.world, O.W + 3, 0.03, 2.2, hall, -1.2, 0.015, rz + ROOM / 2 + 1.7);
+    r.list.forEach((b, i) => { O.places[b.id] = room(x0 + i * (ROOM + GAP), rz, ROOM, ROOM, DEPT_TINT[r.d.id] || "#E8E8E8", "row"); });
+    sign(r.d.ime, O.SX, rz, "odept");
+  });
+  // gornji red: ti, Jarvis, kafić
+  const jar = bots.find(b => b.sef);
+  O.places.__ti = room(x0, TOPZ, ROOM, ROOM, "#DCE6FF", "boss", true);
+  if (jar) O.places[jar.id] = room(0, TOPZ, ROOM * 1.5, ROOM, "#E4E4EA", "ceo", true);
+  O.places.__kafic = room(O.W / 2 - ROOM / 2, TOPZ, ROOM, ROOM, "#F3E7D8", "lounge", true);
+  sign("Ti · šef", x0, TOPZ - ROOM / 2, "top"); if (jar) sign("Jarvis · AI CEO", 0, TOPZ - ROOM / 2, "top"); sign("Kafić ☕", O.W / 2 - ROOM / 2, TOPZ - ROOM / 2, "top");
+  // ljudi
+  const all = [...(jar ? [jar] : []), ...staff];
+  for (const b of all) { const p = makePerson(b.id, b, botColor(b.id)); p.place = O.places[b.id]; seat(p); O.people.set(b.id, p); }
+  const ti = makePerson("__ti", { ime: "Ti" }, "#2B50D6"); ti.place = O.places.__ti; seat(ti); ti.next = Infinity; O.people.set("__ti", ti);
+  O.jarvis = jar ? O.people.get(jar.id) : null;
+  resetCam();
+}
+function seat(p) { p.g.position.set(p.place.desk.x, 0, p.place.desk.z); p.g.rotation.y = 0; p.mode = "sit"; }
+
+/* --- kretanje i ponašanje --- */
+function route(a, b, end) {
+  const pts = [a.door, a.hall];
+  if (Math.abs(a.hall.z - b.hall.z) > 0.01) pts.push(V(O.SX, a.hall.z), V(O.SX, b.hall.z));
+  pts.push(b.hall, b.door, end || b.visit);
+  return pts;
+}
+function visitPlan(p, host, { say, hostSay, carry = true, backCarry = false, wait = 3, then, spot } = {}) {
+  const hp = host.place || host;
+  return [{ carry }, { walk: route(p.place, hp, spot) }, ...(hp.desk ? [{ face: hp.desk }] : []), { wait, say, host: host.place ? host : null, hostSay }, { carry: backCarry },
+    ...(then ? [{ fn: then }] : []), { walk: route(hp, p.place, p.place.desk).slice(0) }, { sit: true }];
+}
+function say(p, text, secs = 3.2) { if (!p || !text) return; p.say = text; p.sayUntil = O.t + secs; }
+function assign(id, title) {
+  const p = O.people.get(id), j = O.jarvis; if (!p || p === j) return;
+  if (!j) { say(p, "Novi posao: " + title); return; }
+  j.queue.push(() => visitPlan(j, p, { say: "Novi zadatak: " + title, hostSay: "Krećem odmah!" }));
+}
+function deliver(id, title) {
+  const p = O.people.get(id), j = O.jarvis, ti = O.people.get("__ti"); if (!p) return;
+  const toBoss = () => j && ti && j.queue.push(() => visitPlan(j, ti, { say: "Za tebe: " + title, hostSay: "👍 Hvala!", wait: 3.5 }));
+  if (!j || p === j) { toBoss(); return; }
+  p.queue.push(() => visitPlan(p, j, { say: "Gotovo: " + title, hostSay: "Odlično, nosim šefu!", then: toBoss }));
+}
+function colleagueOf(p) {
+  const mates = [...O.people.values()].filter(q => q !== p && q.id !== "__ti" && q.b && !q.b.sef && q.b.odjel === p.b?.odjel);
+  if (p.b?.voditelj || !mates.length) return O.jarvis && O.jarvis !== p ? O.jarvis : pick(mates);
+  return mates.find(q => q.b.voditelj && Math.random() < 0.5) || pick(mates);
+}
+function think(p) {
+  if (p.plan.length) return;
+  if (p.queue.length) { p.plan = p.queue.shift()(); return; }
+  if (O.t < p.next || p.id === "__ti") return;
+  const st = officeState(p.id);
+  if (st === "radi" && Math.random() < 0.65) {
+    const c = colleagueOf(p);
+    if (c) p.plan = visitPlan(p, c, { say: pick(SAY_ASK), hostSay: pick(SAY_ANS), backCarry: true, wait: 3.2 });
+    p.next = O.t + rnd(14, 26);
+  } else if (st !== "radi" && Math.random() < 0.3) {
+    const k = O.places.__kafic;
+    p.plan = visitPlan(p, k, { say: "☕ Pauza", carry: false, wait: 4, spot: pick(k.spots) });
+    p.next = O.t + rnd(35, 80);
+  } else p.next = O.t + rnd(10, 25);
+}
+function stepPerson(p, dt) {
+  const s = p.plan[0];
+  if (!s) p.mode = "sit";
+  else if (s.walk) {
+    p.mode = "walk"; s.i = s.i || 0;
+    if (reduce.matches) { const e = s.walk[s.walk.length - 1]; p.g.position.set(e.x, 0, e.z); s.i = s.walk.length; }
+    while (s.i < s.walk.length) {
+      const tg = s.walk[s.i], dx = tg.x - p.g.position.x, dz = tg.z - p.g.position.z, d = Math.hypot(dx, dz), stepLen = SPEED * dt;
+      if (d < 0.02) { s.i++; continue; }
+      p.g.rotation.y = Math.atan2(dx, dz);
+      if (d <= stepLen) { p.g.position.set(tg.x, 0, tg.z); s.i++; } else p.g.position.set(p.g.position.x + dx / d * stepLen, 0, p.g.position.z + dz / d * stepLen);
+      break;
+    }
+    if (s.i >= s.walk.length) p.plan.shift();
+  } else if (s.wait != null) {
+    p.mode = "talk";
+    if (!s.started) { s.started = true; s.left = s.wait; say(p, s.say, s.wait); if (s.host) setTimeout(() => say(s.host, s.hostSay, s.wait * 0.6), s.wait * 400); }
+    s.left -= dt; if (s.left <= 0) p.plan.shift();
+  } else if (s.face) { p.g.rotation.y = Math.atan2(s.face.x - p.g.position.x, s.face.z - p.g.position.z); p.plan.shift(); }
+  else if (s.carry != null) { p.carry = s.carry; p.plan.shift(); }
+  else if (s.fn) { s.fn(); p.plan.shift(); }
+  else if (s.sit) { seat(p); p.plan.shift(); }
+  // poza
+  const t = O.t * (reduce.matches ? 0 : 1), ph = (p.id.length * 1.7) % 6, working = officeState(p.id) === "radi";
+  p.doc.visible = p.carry;
+  if (p.mode === "sit") {
+    p.hips.position.y = 0.5; p.legL.rotation.x = p.legR.rotation.x = -1.45;
+    const typing = working ? Math.sin(t * 16 + ph) * 0.08 : 0;
+    p.armL.rotation.x = -0.95 + typing; p.armR.rotation.x = -0.95 - typing;
+  } else if (p.mode === "walk") {
+    const w = Math.sin(t * 9 + ph);
+    p.hips.position.y = 0.75 + Math.abs(w) * 0.04;
+    p.legL.rotation.x = w * 0.6; p.legR.rotation.x = -w * 0.6;
+    p.armL.rotation.x = -w * 0.5; p.armR.rotation.x = p.carry ? -1.2 : w * 0.5;
+  } else {
+    p.hips.position.y = 0.75; p.legL.rotation.x = p.legR.rotation.x = 0;
+    p.armL.rotation.x = -0.3 - Math.max(0, Math.sin(t * 5 + ph)) * 0.5; p.armR.rotation.x = p.carry ? -1.2 : 0;
+  }
+  if (p.place?.screen) { const e = p.place.screen.emissive; if (working) e.copy(O.accent).multiplyScalar(0.6 + 0.3 * Math.sin(t * 4 + ph)); else e.set(botState(p.id) === "pregled" ? 0x3A2A66 : 0x000000); }
+}
+
 function syncOffice() {
   if (!O.ok) return;
-  const bots = active(), key = bots.map(b => b.id).join();
-  if (key !== O.key) {
-    O.key = key; O.group.clear(); O.bots.clear(); $("labels").replaceChildren();
-    const staff = bots.filter(b => !b.sef), perRow = 5, rows = Math.ceil(staff.length / perRow);
-    bots.filter(b => b.sef).forEach(b => O.bots.set(b.id, makeBot(b, 0, -4.2, true)));
-    staff.forEach((b, i) => { const r = Math.floor(i / perRow), c = i % perRow, n = Math.min(perRow, staff.length - r * perRow); O.bots.set(b.id, makeBot(b, (c - (n - 1) / 2) * 3.4, r * 3.6, false)); });
-    O.depth = rows * 3.6;
+  const bots = active(), key = bots.map(b => b.id + (b.odjel || "")).join();
+  if (key !== O.key) { O.key = key; build(bots); O.prev = null; }
+  const now = new Map(bots.map(b => [b.id, { s: botState(b.id), z: S.zadaci.find(t => t.bot === b.id && (t.status === "radi" || t.status === "pregled")) }]));
+  if (O.prev && !O.demo) for (const [id, v] of now) {
+    const old = O.prev.get(id)?.s;
+    if (old !== "radi" && v.s === "radi") assign(id, v.z?.naslov || "novi posao");
+    if (old === "radi" && v.s === "pregled") deliver(id, v.z?.naslov || "posao");
   }
-  for (const b of bots) {
-    const o = O.bots.get(b.id); if (!o) continue;
-    const z = S.zadaci.find(t => t.bot === b.id && t.status === "radi");
-    const wait = S.zadaci.some(t => t.bot === b.id && t.status === "pregled");
-    o.state = z ? "radi" : wait ? "pregled" : "slobodan";
-    o.color = new THREE.Color(z ? projColor(z.projekt).replace(/hsl\((\d+) (\d+)% (\d+)%\)/, "hsl($1, $2%, $3%)") : 0x000000);
-    const pn = z ? S.projekti.find(p => p.id === z.projekt)?.ime : "";
-    o.tag.dataset.s = o.state;
-    o.tag.replaceChildren(el("i"), (b.sef ? "★ " : "") + b.ime, el("small", { text: o.state === "radi" ? (pn || "radi") : o.state === "pregled" ? "čeka pregled" : "slobodan" }));
-  }
-  drawOnce();
+  O.prev = now;
 }
-function frame(t) {
-  const ang = 0.55 + O.drag + (reduce.matches ? 0 : Math.sin(t * 0.00012) * 0.12), d = 17 + (O.depth || 0) * 0.4, cz = (O.depth || 0) / 2 - 1.5;
-  O.cam.position.set(Math.sin(ang) * d, 11 + (O.depth || 0) * 0.3, cz + Math.cos(ang) * d); O.cam.lookAt(0, 1, cz);
-  const s = reduce.matches ? 0 : t / 1000, W = $("office").clientWidth, H = $("office").clientHeight, v = new THREE.Vector3();
-  for (const o of O.bots.values()) {
-    const working = o.state === "radi";
-    o.monitor.material.emissive = working ? o.color.clone().multiplyScalar(0.55 + 0.35 * Math.sin(s * 5 + o.phase)) : new THREE.Color(o.state === "pregled" ? 0x3a2a66 : 0x000000);
-    o.head.position.y = 1.92 + (working ? Math.abs(Math.sin(s * 6 + o.phase)) * 0.06 : Math.sin(s * 1.2 + o.phase) * 0.02);
-    o.arms.forEach((a, i) => { a.position.y = 1.3 + (working ? Math.sin(s * 14 + i * 3 + o.phase) * 0.05 : 0); });
-    o.gem.visible = working; o.gem.rotation.y = s * 2; o.gem.position.y = 2.6 + Math.sin(s * 2 + o.phase) * 0.08;
-    if (working) o.gem.material.emissive = o.color;
-    o.head.getWorldPosition(v); v.y += 0.55; v.project(O.cam);
-    o.tag.style.left = ((v.x + 1) / 2 * W) + "px"; o.tag.style.top = ((1 - v.y) / 2 * H) + "px"; o.tag.hidden = v.z > 1;
+function demoTick() {
+  if (!O.demo || O.t < O.demoNext) return;
+  O.demoNext = O.t + 6;
+  for (const [id, s] of Object.entries(O.demoState)) if (O.t > s.until) { delete O.demoState[id]; deliver(id, s.title); }
+  const free = [...O.people.values()].filter(p => p.b && !p.b.sef && p.id !== "__ti" && !O.demoState[p.id]);
+  if (free.length && Object.keys(O.demoState).length < 6) {
+    const p = pick(free), title = pick(DEMO_TASKS);
+    O.demoState[p.id] = { title, until: O.t + rnd(28, 50) }; assign(p.id, title);
+    if (O.jarvis) say(O.jarvis, "Dajem posao: " + p.b.ime);
   }
+}
+function tick(dt) {
+  O.t += dt; demoTick();
+  for (const p of O.people.values()) { think(p); stepPerson(p, dt); }
+  if (O.follow && O.people.get(O.follow)) {
+    const q = O.people.get(O.follow).g.position;
+    if (O.ctl) { const off = O.cam.position.clone().sub(O.ctl.target); O.ctl.target.lerp(new THREE.Vector3(q.x, 0.8, q.z), 0.08); O.cam.position.copy(O.ctl.target).add(off.setLength(Math.min(off.length(), 14))); }
+  }
+  O.ctl?.update();
   O.r.render(O.scene, O.cam);
+  // natpisi
+  const W = $("office").clientWidth, H = $("office").clientHeight, v = new THREE.Vector3();
+  const far = O.cam.position.distanceTo(O.ctl ? O.ctl.target : new THREE.Vector3()) > 38;
+  const put = (e, x, y, z) => { v.set(x, y, z).project(O.cam); const off = v.z > 1 || Math.abs(v.x) > 1.2 || Math.abs(v.y) > 1.2; e.hidden = off; if (!off) e.style.transform = `translate(${(v.x + 1) / 2 * W}px, ${(1 - v.y) / 2 * H}px) translate(-50%, -100%)`; };
+  for (const s of O.signs) put(s.e, s.x, 1.5, s.z);
+  for (const p of O.people.values()) {
+    const st = p.id === "__ti" ? "slobodan" : officeState(p.id), busy = p.mode !== "sit" || st !== "slobodan" || O.follow === p.id;
+    p.tag.dataset.s = st;
+    const label = (p.b?.sef ? "★ " : "") + (p.b?.ime || p.id);
+    if (p.tag.textContent !== label) p.tag.textContent = label;
+    const gp = p.g.position, hy = p.mode === "sit" ? 1.95 : 2.2;
+    if (far && !busy) p.tag.hidden = true; else put(p.tag, gp.x, hy, gp.z);
+    const talking = p.say && O.t < p.sayUntil;
+    if (talking) { if (p.bub.textContent !== p.say) p.bub.textContent = p.say; put(p.bub, gp.x, hy + 0.55, gp.z); } else p.bub.hidden = true;
+  }
 }
-function drawOnce() { if (O.ok) frame(performance.now()); }
-function loop(t) { if (!document.hidden && !reduce.matches && O.ok) frame(t); requestAnimationFrame(loop); }
 
 /* ---------- ostatak stranice ---------- */
 function renderHeader() {
